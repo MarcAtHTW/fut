@@ -257,7 +257,7 @@ def playstyles(year=2018, timeout=timeout):
 
 
 class Core(object):
-    def __init__(self, email, passwd, secret_answer, platform='pc', code=None, totp=None, sms=False, emulate=None, debug=False, cookies=cookies_file, timeout=timeout, delay=delay, proxies=None):
+    def __init__(self, email, passwd, secret_answer, platform='ps4', code=None, totp=None, sms=False, emulate=None, debug=False, cookies=cookies_file, timeout=timeout, delay=delay, proxies=None):
         self.credits = 0
         self.cookies_file = cookies  # TODO: map self.cookies to requests.Session.cookies?
         self.timeout = timeout
