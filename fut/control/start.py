@@ -15,7 +15,7 @@ q = "CREATE TABLE Player (id INT(6) " \
 
 
 q = "INSERT INTO Player (firstname, lastname, position)" \
-    "VALUES ('Christian', 'Auner', 'Mittelfeld')"
+    "VALUES ('Fu', 'Bar', 'Mittelfeld')"
 
 q = "SELECT * FROM Player"
 
@@ -25,7 +25,7 @@ q = "SELECT * FROM Player"
 #result = db.insert(q)
 #result = db.query(q)
 #print(result)
-fut = fut.Core('ps3@marc-sahib.de', 'EATempPass2017', 'seifert', debug=True)
+fut = fut.Core('user', 'pass', 'securityanswer', debug=True)
 
 items = fut.searchAuctions(ctype='player', level='gold')
 
