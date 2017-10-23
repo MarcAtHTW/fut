@@ -2,10 +2,10 @@ import pymysql as MySQLdb
 
 class Database:
 
-    host =      'mysql.webhosting47.1blu.de'
-    user =      's223591_2648106'
-    password =  'EATempPass2017'
-    db =        'db223591x2648106'
+    host =      ''
+    user =      ''
+    password =  ''
+    db =        ''
 
     def __init__(self):
         self.connection = MySQLdb.connect(self.host, self.user, self.password, self.db)
