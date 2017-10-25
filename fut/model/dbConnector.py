@@ -1,11 +1,10 @@
 import pymysql as MySQLdb
 
 class Database:
-
-    host =      ''
-    user =      ''
-    password =  ''
-    db =        ''
+    host = 'host'
+    user = 'user'
+    password = 'pass'
+    db = 'db'
 
     def __init__(self):
         self.connection = MySQLdb.connect(self.host, self.user, self.password, self.db)
@@ -17,7 +16,6 @@ class Database:
             self.connection.commit()
         except:
             self.connection.rollback()
-
 
     def query(self, query):
         cursor = self.connection.cursor( MySQLdb.cursors.DictCursor )

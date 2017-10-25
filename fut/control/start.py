@@ -23,16 +23,16 @@ q = "SELECT * FROM Player"
 #q = "SHOW TABLES"
 
 #result = db.insert(q)
-#result = db.query(q)
-#print(result)
-fut = fut.Core('user', 'pass', 'securityanswer', debug=True)
+result = db.query(q)
+print(result)
+fut = fut.Core('name', 'pass', 'answer', debug=True, cookies='cookies.txt')
 
-items = fut.searchAuctions(ctype='player', level='gold')
+items = fut.searchAuctions(ctype='player', level='gold', nationality=21)
 
-dump = json.dumps(items)
+# dump = json.dumps(items)
 #parsed = json.loads(items)
 #print(json.dumps(parsed, indent=4, sort_keys=True))
-#print(items)
+print(items)
 
 #players = fut.players
 #nations = fut.nations()
