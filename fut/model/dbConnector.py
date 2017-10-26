@@ -2,13 +2,8 @@ import pymysql as MySQLdb
 
 class Database:
 
-    host =      ''
-    user =      ''
-    password =  ''
-    db =        ''
-
-    def __init__(self):
-        self.connection = MySQLdb.connect(self.host, self.user, self.password, self.db)
+    def __init__(self, host, user, password, db):
+        self.connection = MySQLdb.connect(host, user, password, db)
         self.cursor = self.connection.cursor()
 
     def insert(self, query):
