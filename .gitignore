@@ -17,5 +17,6 @@ test.log
 testemu.py
 screenlog.0
 codecov.yml
-.idea/
 credentials.conf
+.idea/
+fut/model/mycredentials.conf

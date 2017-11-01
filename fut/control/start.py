@@ -3,6 +3,7 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
+from fut.model.database import createAndLoadPlayerDatabase
 
 def getCredentials():
     """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -11,7 +12,7 @@ def getCredentials():
     :return credentials: Zugangsdaten EA + DB
     """
     config  = configparser.ConfigParser()
-    config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'credentials.conf'))
+    config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'mycredentials.conf'))
 
     credentials = {
         "DB_Host" : config.get("configuration-DB", "host"),
@@ -43,15 +44,22 @@ fut = fut.Core(
     debug=True
 )
 
+# create and fill fut_players table
+# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
+
+
+
+
+
 #Test Query
-q = "SELECT * FROM Player"
+# q = "SELECT * FROM Player"
 
 #Suche
-items = fut.searchAuctions(ctype='player', level='gold')
+#items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
 
 #JSON Dump
-dump = json.dumps(items)
-
+# dump = json.dumps(items)
+#print(dump)
 
 #q = "SHOW DATABASES"
 #q = "SHOW TABLES"
@@ -64,7 +72,7 @@ dump = json.dumps(items)
 #print(json.dumps(parsed, indent=4, sort_keys=True))
 #print(items)
 
-#players = fut.players
+
 #nations = fut.nations()
 
 #leagues = fut.leagues()
@@ -72,4 +80,6 @@ dump = json.dumps(items)
 #stadiums = fut.stadiums()
 #players = fut.players()
 #playestyles = fut.playstyles()
+
+#fut.logout()
 print('Done')
