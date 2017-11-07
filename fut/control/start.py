@@ -3,6 +3,7 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
+from fut.model.database import createAndLoadPlayerDatabase
 
 def getCredentials():
     """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -11,7 +12,7 @@ def getCredentials():
     :return credentials: Zugangsdaten EA + DB
     """
     config  = configparser.ConfigParser()
-    config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'credentials.conf'))
+    config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'mycredentials.conf'))
 
     credentials = {
         "DB_Host" : config.get("configuration-DB", "host"),
@@ -43,14 +44,47 @@ fut = fut.Core(
     debug=True
 )
 
+# create and fill fut_players table
+# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
+
+
+
+
+
 #Test Query
-q = "SELECT * FROM Player"
+# q = "SELECT * FROM Player"
 
 #Suche
-items = fut.searchAuctions(ctype='player', level='gold')
+#items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
 
 #JSON Dump
-dump = json.dumps(items)
+
+# player ist eine freie Variable
+# items in die Liste in der die Suchergebnisse gespeichert werden
+
+
+#Testschleifen
+for player in items:
+    print (player['tradeId'])
+    print(player)
+
+
+for x in items:
+    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
+          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
+
+
+players = fut.players
+
+for player in players:
+    print(players[16])
+
+#Ende Testschleifen
+
+
+#dump = json.dumps(items)
+#with open('data.txt', 'w') as outfile:
+#    json.dump(dump, outfile)
 
 
 #q = "SHOW DATABASES"
@@ -72,4 +106,6 @@ dump = json.dumps(items)
 #stadiums = fut.stadiums()
 #players = fut.players()
 #playestyles = fut.playstyles()
+
+#fut.logout()
 print('Done')
