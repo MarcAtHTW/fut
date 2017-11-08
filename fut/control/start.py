@@ -3,10 +3,9 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
-from fut.model.database import createAndLoadPlayerDatabase
 
 def getCredentials():
-    """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
+    """    Lädt die Zugangsdaten für die Datenbank + EA.
 
     :rtype: Dictionary
     :return credentials: Zugangsdaten EA + DB
@@ -28,14 +27,7 @@ def getCredentials():
 
 credentials = getCredentials()
 
-#Verbindung zur DB
-db = DB.Database(
-    credentials['DB_Host'],
-    credentials['DB_User'],
-    credentials['DB_Pass'],
-    credentials['DB_Name']
-)
-
+#FUT-Objekt
 #Verbindung zu EA
 fut = fut.Core(
     credentials['EA_Mail'],
@@ -44,47 +36,33 @@ fut = fut.Core(
     debug=True
 )
 
-# create and fill fut_players table
-# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
 
+def getPlayerViaNameFromTransfermarket(name, fut):
+    matchedPlayer = None
+    players = fut.players
+    if name in players:
+        matchedPlayer = players[name]
 
+    return matchedPlayer
 
-
-
-#Test Query
-# q = "SELECT * FROM Player"
+    #Test Query
+q = "SELECT * FROM Player"
 
 #Suche
-#items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+items = fut.searchAuctions(ctype='player', level='gold')
 
 #JSON Dump
+dump = json.dumps(items)
 
-# player ist eine freie Variable
-# items in die Liste in der die Suchergebnisse gespeichert werden
+#Verbindung zur DB
+db = DB.Database(
+    credentials['DB_Host'],
+    credentials['DB_User'],
+    credentials['DB_Pass'],
+    credentials['DB_Name']
+)
 
-
-#Testschleifen
-for player in items:
-    print (player['tradeId'])
-    print(player)
-
-
-for x in items:
-    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
-          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
-
-
-players = fut.players
-
-for player in players:
-    print(players[16])
-
-#Ende Testschleifen
-
-
-#dump = json.dumps(items)
-#with open('data.txt', 'w') as outfile:
-#    json.dump(dump, outfile)
+#getPlayerViaNameFromTransfermarket('Garcia', fut)
 
 
 #q = "SHOW DATABASES"
@@ -98,7 +76,7 @@ for player in players:
 #print(json.dumps(parsed, indent=4, sort_keys=True))
 #print(items)
 
-#players = fut.players
+
 #nations = fut.nations()
 
 #leagues = fut.leagues()
@@ -106,6 +84,5 @@ for player in players:
 #stadiums = fut.stadiums()
 #players = fut.players()
 #playestyles = fut.playstyles()
-
-#fut.logout()
+fut.logout()
 print('Done')
