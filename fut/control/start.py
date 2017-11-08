@@ -62,20 +62,19 @@ items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
 # player ist eine freie Variable
 # items in die Liste in der die Suchergebnisse gespeichert werden
 
-def sucheSpeichernInListen():
+def searchSavedInList():
 
     tradeIdList = []
     buyNowPriceList = []
     startingBidList = []
 
-
-    for suche in items:
-        tradeIdList.append(suche["tradeId"])
-        buyNowPriceList.append(suche["buyNowPrice"])
-        startingBidList.append(suche["startingBid"])
+    for search in items:
+        tradeIdList.append(search["tradeId"])
+        buyNowPriceList.append(search["buyNowPrice"])
+        startingBidList.append(search["startingBid"])
 #    print(tradeIdList, buyNowPriceList, startingBidList)
 
-sucheSpeichernInListen()
+searchSavedInList()
 
 
 #backup
@@ -106,26 +105,19 @@ def playerInList():
     nationalityList = []
 
     for key, value in players.items():
-        #print(key)
-        #print(value)
+
         for k,v in value.items():
             if k == "firstname":
-                #print(k)
                 firstnameList.append(v)
             if k == "lastname":
-                #print(k)
                 lastnameList.append(v)
             if k == "id":
-                #print(k)
                 idList.append(v)
             if k == "surname":
-                #print(k)
                 surnameList.append(v)
             if k == "rating":
-                #print(k)
                 ratingList.append(v)
             if k == "nationality":
-                #print(k)
                 nationalityList.append(v)
 
 #q = "SHOW DATABASES"
