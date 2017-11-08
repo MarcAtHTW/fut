@@ -62,29 +62,27 @@ items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
 # player ist eine freie Variable
 # items in die Liste in der die Suchergebnisse gespeichert werden
 
-#sucheSpeichern()
-
-def sucheSpeichern():
+def sucheSpeichernInListen():
 
     tradeIdList = []
+    buyNowPriceList = []
+    startingBidList = []
+
 
     for suche in items:
-        tradeIdList.append(x["tradeId"])
+        tradeIdList.append(suche["tradeId"])
+        buyNowPriceList.append(suche["buyNowPrice"])
+        startingBidList.append(suche["startingBid"])
+#    print(tradeIdList, buyNowPriceList, startingBidList)
+
+sucheSpeichernInListen()
 
 
-
-#Testschleifen
-#for player in items:
-#    print (player['tradeId'])
-#    print(player)
-
+#backup
 
 #for x in items:
 #    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
 #          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
-
-
-
 
 #k= list(players.keys())
 #lenghtk = len(k)
@@ -92,6 +90,8 @@ def sucheSpeichern():
 #for player in players:
 #    for i in lenghtk:
 #        print(players[k[i]])
+
+#Ende backup
 
 # Definition von Listen und Füllung dieser mit Player Inhalt
 
@@ -127,16 +127,6 @@ def playerInList():
             if k == "nationality":
                 #print(k)
                 nationalityList.append(v)
-
-
-
-#Ende Testschleifen
-
-
-#dump = json.dumps(items)
-#with open('data.txt', 'w') as outfile:
-#    json.dump(dump, outfile)
-
 
 #q = "SHOW DATABASES"
 #q = "SHOW TABLES"
