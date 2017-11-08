@@ -79,6 +79,6 @@ def loadPlayerDatabase(coreobject, connection):
     # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
     sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)"
 
-    # result = connection.insert(sql, ('2', 'testname', 'testlastname', 'testsurname', 87, 12))
-    result = connection.insert(sql, [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList])
+    result = connection.insert(sql, ('2', 'testname', 'testlastname', 'testsurname', 87, 12))
+    # result = connection.insert(sql, [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList])
     print(result)

@@ -46,10 +46,10 @@ fut = fut.Core(
 
 # create fut_players table
 print("create table")
-# executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
 # fill fut_players table
 print("insert data")
-# loadPlayerDatabase(fut, db)
+loadPlayerDatabase(fut, db)
 
 
 
@@ -61,6 +61,7 @@ print("insert data")
 
 #Suche
 # items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+# print(items)
 items = dict()
 
 #JSON Dump

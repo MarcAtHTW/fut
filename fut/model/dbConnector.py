@@ -1,4 +1,5 @@
 import pymysql as MySQLdb
+import sys
 from pymysql import cursors
 
 class Database:
@@ -12,14 +13,13 @@ class Database:
         try:
             if var != None:
                 cursor.execute(query, var)
+                print("Daten eingefuegt")
             else:
-                cursor.execute(query)
-            return cursor.fetchall()
-            # print("Error ", cursor.Error)
-            # print("DatabaseError ", cursor.DatabaseError)
-            # print("DataError ", cursor.DataError)
+                result = cursor.execute(query)
+                print("Daten eingefuegt")
             self.connection.commit()
-        except:
+        except (MySQLdb.Error, MySQLdb.Warning) as err3:
+            print(err3)
             self.connection.rollback()
 
     def query(self, query, var=None):
