@@ -3,15 +3,15 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
-from fut.model.database import createAndLoadPlayerDatabase
+from fut.model.database import loadPlayerDatabase, executeSqlFromFile
 
 def getCredentials():
-    """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
+    """ Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
 
     :rtype: Dictionary
     :return credentials: Zugangsdaten EA + DB
     """
-    config  = configparser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'mycredentials.conf'))
 
     credentials = {
@@ -44,8 +44,13 @@ fut = fut.Core(
     debug=True
 )
 
-# create and fill fut_players table
-# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
+# create fut_players table
+print("create table")
+# executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+# fill fut_players table
+print("insert data")
+# loadPlayerDatabase(fut, db)
+
 
 
 
@@ -55,7 +60,8 @@ fut = fut.Core(
 # q = "SELECT * FROM Player"
 
 #Suche
-items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+# items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+items = dict()
 
 #JSON Dump
 
@@ -74,7 +80,7 @@ def searchSavedInList():
         startingBidList.append(search["startingBid"])
 #    print(tradeIdList, buyNowPriceList, startingBidList)
 
-searchSavedInList()
+# searchSavedInList()
 
 
 
@@ -142,4 +148,4 @@ def playerInList():
 #playestyles = fut.playstyles()
 
 #fut.logout()
-print('Done')
+print('start.py Done')

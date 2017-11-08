@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS fut_players;
-
 CREATE TABLE IF NOT EXISTS fut_players (
   ressourceId VARCHAR(15) NOT NULL,
   firstname VARCHAR(45) DEFAULT NULL,
@@ -8,4 +6,4 @@ CREATE TABLE IF NOT EXISTS fut_players (
   rating INT(3) DEFAULT NULL,
   nationality INT(3) DEFAULT NULL,
   PRIMARY KEY (ressourceId)
-);
+)
