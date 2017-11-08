@@ -3,7 +3,7 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
-from fut.model.database import createAndLoadPlayerDatabase
+from fut.model.database import loadPlayerDatabase, executeSqlFromFile
 
 def getCredentials():
     """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -44,8 +44,13 @@ fut = fut.Core(
     debug=True
 )
 
-# create and fill fut_players table
-# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
+# create fut_players table
+print("create table")
+executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+# fill fut_players table
+print("insert data")
+loadPlayerDatabase(fut, db)
+
 
 
 
