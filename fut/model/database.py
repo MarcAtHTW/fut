@@ -1,4 +1,5 @@
 import json
+import pymysql.cursors
 
 
 def executeSqlFromFile(connection, filename):
@@ -20,46 +21,52 @@ def executeSqlFromFile(connection, filename):
     sqlcommands = sqlfile.split(';')
 
     # Execute every command from the input file
-    for command in sqlcommands:
+
         # This will skip and report errors
         # For example, if the tables do not yet exist, this will skip over
         # the DROP TABLE commands
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(command)
-                # connection.commit()
-                print("Befehl ausgefuehrt: ", command)
-        except ValueError as msg:
-            print("Command skipped: ", msg)
-    return
-
-
-def createAndLoadPlayerDatabase(coreobject, connection, filename):
-    """    Lädt alle FUT-Spieler und schreibt sie in die Tabelle 'fut_players' in der Datenbank, wenn die Tabelle noch nicht existiert wird sie erzeugt
-
-    :param coreobject: fut Core Objekt
-    :param connection: db-conneciton
-    :param filename: sql filename
-    :rtype: String
-    :return Erfolgsmessage
-    """
-    players = coreobject.players
-    playerdump = json.dumps(players)
-    for key, value in players.items():
-        # print(key)
-        # print(value)
-        for k, v in value.items():
-            print(k)
-            print(v)
-    # print(playerdump)
-    executeSqlFromFile(connection, filename)
-    # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
     try:
-        connection.executemany(
-            "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)",
-            playerdump)
-        # connection.commit()
+        with connection.cursor as cursor:
+            for command in sqlcommands:
+                cursor.execute(command)
+                print("Befehl ausgefuehrt: ", command)
+            return
+            # cursor.close()
     except ValueError as msg:
         print("Command skipped: ", msg)
 
-    return print("database fut_players created data loaded")
+
+def loadPlayerDatabase(coreobject, connection):
+    """    Lädt alle FUT-Spieler und schreibt sie in die Tabelle 'fut_players' in der Datenbank
+
+    :param coreobject: fut Core Object
+    :param connection: db-connection
+    :rtype: String
+    :return Erfolgsmessage
+    """
+    # players = coreobject.players
+    # playerdump = json.dumps(players)
+    # for key, value in players.items():
+        # print(key)
+        # print(value)
+    #    for k, v in value.items():
+    #        print(k)
+    #        print(v)
+    # print(playerdump)
+
+    # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
+
+    try:
+        with connection.cursor as cursor:
+            # Create a new record
+            sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, ('1', 'testname', 'testlastname', 'testsurname', '87', 'german'))
+        cursor.close()
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        connection.commit()
+    except ValueError as msg:
+        print("Command skipped: ", msg)
+
+    return print("database fut_players created and data loaded")

@@ -3,7 +3,7 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
-from fut.model.database import createAndLoadPlayerDatabase
+from fut.model.database import loadPlayerDatabase, executeSqlFromFile
 
 def getCredentials():
     """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -44,8 +44,13 @@ fut = fut.Core(
     debug=True
 )
 
-# create and fill fut_players table
-# createAndLoadPlayerDatabase(fut, db, '../model/sqlqueries/futplayers.sql')
+# create fut_players table
+print("create table")
+executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+# fill fut_players table
+print("insert data")
+loadPlayerDatabase(fut, db)
+
 
 
 
@@ -55,29 +60,80 @@ fut = fut.Core(
 # q = "SELECT * FROM Player"
 
 #Suche
-#items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
 
 #JSON Dump
 
 # player ist eine freie Variable
 # items in die Liste in der die Suchergebnisse gespeichert werden
 
+#sucheSpeichern()
+
+def sucheSpeichern():
+
+    tradeIdList = []
+
+    for suche in items:
+        tradeIdList.append(x["tradeId"])
+
+
 
 #Testschleifen
-for player in items:
-    print (player['tradeId'])
-    print(player)
+#for player in items:
+#    print (player['tradeId'])
+#    print(player)
 
 
-for x in items:
-    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
-          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
+#for x in items:
+#    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
+#          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
 
 
-players = fut.players
 
-for player in players:
-    print(players[16])
+
+#k= list(players.keys())
+#lenghtk = len(k)
+
+#for player in players:
+#    for i in lenghtk:
+#        print(players[k[i]])
+
+# Definition von Listen und Füllung dieser mit Player Inhalt
+
+def playerInList():
+    players = fut.players
+
+    idList = []
+    firstnameList = []
+    lastnameList = []
+    surnameList = []
+    ratingList = []
+    nationalityList = []
+
+    for key, value in players.items():
+        #print(key)
+        #print(value)
+        for k,v in value.items():
+            if k == "firstname":
+                #print(k)
+                firstnameList.append(v)
+            if k == "lastname":
+                #print(k)
+                lastnameList.append(v)
+            if k == "id":
+                #print(k)
+                idList.append(v)
+            if k == "surname":
+                #print(k)
+                surnameList.append(v)
+            if k == "rating":
+                #print(k)
+                ratingList.append(v)
+            if k == "nationality":
+                #print(k)
+                nationalityList.append(v)
+
+
 
 #Ende Testschleifen
 
