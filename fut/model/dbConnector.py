@@ -5,7 +5,7 @@ from pymysql import cursors
 class Database:
 
     def __init__(self, host, user, password, db):
-        self.connection = MySQLdb.connect(host, user, password, db)
+        self.connection = MySQLdb.connect(host, user, password, db, charset='utf8')
         self.cursor = self.connection.cursor()
 
     def insert(self, query, var=None):

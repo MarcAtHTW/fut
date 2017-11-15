@@ -46,12 +46,10 @@ fut = fut.Core(
 
 # create fut_players table
 print("create table")
-executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+# executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
 # fill fut_players table
 print("insert data")
-loadPlayerDatabase(fut, db)
-
-
+# loadPlayerDatabase(fut, db)
 
 
 
@@ -60,9 +58,39 @@ loadPlayerDatabase(fut, db)
 # q = "SELECT * FROM Player"
 
 #Suche
-# items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+items = fut.searchAuctions(ctype='player', level='gold', assetId='50530358')
 # print(items)
-items = dict()
+# items = dict()
+
+print(len(fut.watchlist()))
+
+
+# print(fut.watchlist())
+def myloopyloop(args):
+    """
+
+    :return:
+    """
+    i = 0
+    for x in args:
+        myid = x["tradeId"]
+        print(myid)
+        print(i)
+        if (i <= 15):
+            fut.sendToWatchlist(int(myid))
+            # fut.sendToWatchlist(x["tradeId"])
+            # watchlist = fut.watchlist()
+            # print(str(x))
+            # print(watchlist)
+        i = i + 1
+
+
+myloopyloop(items)
+# fut.watchlistDelete(202872169888)
+print(len(fut.watchlist()))
+
+print(fut.watchlist())
+
 
 #JSON Dump
 
