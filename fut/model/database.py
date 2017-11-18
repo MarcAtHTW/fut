@@ -1,5 +1,5 @@
 import json
-import pymysql.cursors
+import pymysql
 
 
 def executeSqlFromFile(connection, filename):
@@ -22,18 +22,14 @@ def executeSqlFromFile(connection, filename):
 
     # Execute every command from the input file
 
-        # This will skip and report errors
-        # For example, if the tables do not yet exist, this will skip over
-        # the DROP TABLE commands
-    try:
-        with connection.cursor as cursor:
-            for command in sqlcommands:
-                cursor.execute(command)
-                print("Befehl ausgefuehrt: ", command)
-            return
-            # cursor.close()
-    except ValueError as msg:
-        print("Command skipped: ", msg)
+    # This will skip and report errors
+    # For example, if the tables do not yet exist, this will skip over
+    # the DROP TABLE commands
+
+    for command in sqlcommands:
+        connection.query(command)
+        # print("Befehl ausgefuehrt: ", command)
+    return
 
 
 def loadPlayerDatabase(coreobject, connection):
@@ -47,26 +43,42 @@ def loadPlayerDatabase(coreobject, connection):
     # players = coreobject.players
     # playerdump = json.dumps(players)
     # for key, value in players.items():
-        # print(key)
-        # print(value)
+    # print(key)
+    # print(value)
     #    for k, v in value.items():
     #        print(k)
     #        print(v)
     # print(playerdump)
 
+    players = coreobject.players
+
+    idList = []
+    firstnameList = []
+    lastnameList = []
+    surnameList = []
+    ratingList = []
+    nationalityList = []
+
+    for key, value in players.items():
+
+        for k, v in value.items():
+            if k == "firstname":
+                firstnameList.append(v)
+            if k == "lastname":
+                lastnameList.append(v)
+            if k == "id":
+                idList.append(v)
+            if k == "surname":
+                surnameList.append(v)
+            if k == "rating":
+                ratingList.append(v)
+            if k == "nationality":
+                nationalityList.append(v)
+    playerDataList = [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList]
+
     # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
+    sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)"
 
-    try:
-        with connection.cursor as cursor:
-            # Create a new record
-            sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, ('1', 'testname', 'testlastname', 'testsurname', '87', 'german'))
-        cursor.close()
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    except ValueError as msg:
-        print("Command skipped: ", msg)
-
-    return print("database fut_players created and data loaded")
+    result = connection.insert(sql, ('2', 'testname', 'testlastname', 'testsurname', 87, 12))
+    # result = connection.insert(sql, [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList])
+    print(result)

@@ -6,12 +6,12 @@ from fut.model import dbConnector as DB
 from fut.model.database import loadPlayerDatabase, executeSqlFromFile
 
 def getCredentials():
-    """    Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
+    """ Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
 
     :rtype: Dictionary
     :return credentials: Zugangsdaten EA + DB
     """
-    config  = configparser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../model', 'mycredentials.conf'))
 
     credentials = {
@@ -46,12 +46,10 @@ fut = fut.Core(
 
 # create fut_players table
 print("create table")
-executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
+# executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
 # fill fut_players table
 print("insert data")
-loadPlayerDatabase(fut, db)
-
-
+# loadPlayerDatabase(fut, db)
 
 
 
@@ -60,36 +58,66 @@ loadPlayerDatabase(fut, db)
 # q = "SELECT * FROM Player"
 
 #Suche
-items = fut.searchAuctions(ctype='player', level='gold', assetId = '50530358')
+items = fut.searchAuctions(ctype='player', level='gold', assetId='50530358')
+# print(items)
+# items = dict()
+
+print(len(fut.watchlist()))
+
+
+# print(fut.watchlist())
+def myloopyloop(args):
+    """
+
+    :return:
+    """
+    i = 0
+    for x in args:
+        myid = x["tradeId"]
+        print(myid)
+        print(i)
+        if (i <= 15):
+            fut.sendToWatchlist(int(myid))
+            # fut.sendToWatchlist(x["tradeId"])
+            # watchlist = fut.watchlist()
+            # print(str(x))
+            # print(watchlist)
+        i = i + 1
+
+
+myloopyloop(items)
+# fut.watchlistDelete(202872169888)
+print(len(fut.watchlist()))
+
+print(fut.watchlist())
+
 
 #JSON Dump
 
 # player ist eine freie Variable
 # items in die Liste in der die Suchergebnisse gespeichert werden
 
-#sucheSpeichern()
-
-def sucheSpeichern():
+def searchSavedInList():
 
     tradeIdList = []
+    buyNowPriceList = []
+    startingBidList = []
 
-    for suche in items:
-        tradeIdList.append(x["tradeId"])
+    for search in items:
+        tradeIdList.append(search["tradeId"])
+        buyNowPriceList.append(search["buyNowPrice"])
+        startingBidList.append(search["startingBid"])
+#    print(tradeIdList, buyNowPriceList, startingBidList)
+
+# searchSavedInList()
 
 
 
-#Testschleifen
-#for player in items:
-#    print (player['tradeId'])
-#    print(player)
-
+#backup
 
 #for x in items:
 #    print("tradeId: " + str(x["tradeId"]) + " byNowPrice: " + str(x["buyNowPrice"]) +
 #          ' attributeListValue1: ' + str(x["attributeList"][0]["value"]))
-
-
-
 
 #k= list(players.keys())
 #lenghtk = len(k)
@@ -97,6 +125,8 @@ def sucheSpeichern():
 #for player in players:
 #    for i in lenghtk:
 #        print(players[k[i]])
+
+#Ende backup
 
 # Definition von Listen und Füllung dieser mit Player Inhalt
 
@@ -111,37 +141,20 @@ def playerInList():
     nationalityList = []
 
     for key, value in players.items():
-        #print(key)
-        #print(value)
+
         for k,v in value.items():
             if k == "firstname":
-                #print(k)
                 firstnameList.append(v)
             if k == "lastname":
-                #print(k)
                 lastnameList.append(v)
             if k == "id":
-                #print(k)
                 idList.append(v)
             if k == "surname":
-                #print(k)
                 surnameList.append(v)
             if k == "rating":
-                #print(k)
                 ratingList.append(v)
             if k == "nationality":
-                #print(k)
                 nationalityList.append(v)
-
-
-
-#Ende Testschleifen
-
-
-#dump = json.dumps(items)
-#with open('data.txt', 'w') as outfile:
-#    json.dump(dump, outfile)
-
 
 #q = "SHOW DATABASES"
 #q = "SHOW TABLES"
@@ -164,4 +177,4 @@ def playerInList():
 #playestyles = fut.playstyles()
 
 #fut.logout()
-print('Done')
+print('start.py Done')
