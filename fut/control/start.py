@@ -74,6 +74,7 @@ def myloopyloop(args):
     i = 0
     for x in args:
         myid = x["tradeId"]
+        item_id = x["id"]
         print(myid)
         print(i)
         if (i <= 15):
