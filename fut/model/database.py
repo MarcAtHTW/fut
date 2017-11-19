@@ -1,6 +1,9 @@
 import json
 import pymysql
 import sys
+import fut
+from fut.model.watchlist import  Watchlist
+
 
 
 def executeSqlFromFile(connection, filename):
@@ -75,7 +78,6 @@ def loadPlayerDatabase(coreobject, connection):
                 ratingList.append(v)
             if k == "nationality":
                 nationalityList.append(v)
-    playerDataList = [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList]
 
     # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
     sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, convert(%s using utf8), %s, %s, %s)"
@@ -87,3 +89,41 @@ def loadPlayerDatabase(coreobject, connection):
     for item in x:
         connection.insert(sql, x)
 
+
+def succesTradesFromWatchlist(coreobject, connection):
+
+    watchlist = Watchlist(coreobject)
+    #print(coreobject.watchlist())
+
+    currentBidList = []
+    assetIdList = []
+    buyNowPriceList = []
+    startingBidList = []
+    contractList = []
+    fitnessList = []
+    timestampList = []
+    tradeIdList = []
+
+    for y in coreobject.watchlist():
+
+        if y["tradeState"] == "closed":
+
+            currentBidList.append(y["currentBid"])
+            assetIdList.append(y["assetId"])
+            buyNowPriceList.append(y["buyNowPrice"])
+            startingBidList.append(y["startingBid"])
+            contractList.append(y["contract"])
+            fitnessList.append(y["fitness"])
+            timestampList.append(y["timestamp"])
+            tradeIdList.append(y["tradeId"])
+
+    # Erstellung einer Liste bestehend aus den Listen der Attribute
+    x = list(zip(tradeIdList, buyNowPriceList))
+
+    sql = "insert into fut_watchlist (tradeId, buyNowPrice) values (%s, %)"
+
+    # Einfügung der Liste x in die Datenbank
+    for item in x:
+        connection.insert(sql, x)
+
+    print(tradeIdList)
