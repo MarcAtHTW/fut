@@ -72,7 +72,7 @@ fut = fut.Core(
 # q = "SELECT * FROM Player"
 
 """Suche"""
-items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=10)
+items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=48)
 # print(items)
 # items = dict()
 
@@ -80,20 +80,23 @@ items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=10)
 
 """Objekterzeugung Watchlist"""
 watchlist = Watchlist(fut)
+#watchlist.clear()
+watchlist.loadTradeIdsFromLiveWatchlist()
 
 """Löschen der Watchlist anhand einer manuellen TradeIDListe"""
 #trade_ids = []
 #watchlist.clear(trade_ids)
 
 """Befüllen der Watchliste mit den gefundenen Items der Suche"""
-#watchlist.fillup(items)
-# print(fut.watchlist())
-#print("%s players on watchlist." % len(fut.watchlist()))
+watchlist.fillup(items, 10)
+
+print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
+print(fut.watchlist())
 
 """Löschen der Watchlist zur Laufzeit"""
-#watchlist.clear()
-#print("%s players on watchlist." % len(fut.watchlist()))
-#print(fut.watchlist())
+watchlist.clear()
+print("%s players on watchlist." % len(fut.watchlist()))
+print(fut.watchlist())
 
 
 """Auslesen der abgelaufenen erfolgreichen Trades aus der Watchlist"""

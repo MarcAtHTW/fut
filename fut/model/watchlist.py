@@ -1,3 +1,5 @@
+import json
+
 class Watchlist:
 
     tradeIDs = []
@@ -10,27 +12,24 @@ class Watchlist:
         #self.clubConsumablesDetails     = fut_session.clubConsumableDetails()
         self.length                     = len(fut_session.watchlist())
 
-    def fillup(self, resultsetTransfermarketsearch):
+    def fillup(self, resultsetTransfermarketsearch, maxLengthOfWatchlist=50):
         """ Fills up Watchlist with items found at a market search.
         :type resultsetTransfermarketsearch: list
         :param resultsetTransfermarketsearch: Items of transfer market.
+        :type maxLengthOfWatchlist: int
+        :param maxLengthOfWatchlist: Max lenght of items possible to put on Watchlist
         """
-
         i = 0
-        if len(self.tradeIDs) < 50:
-            maxLentgthOfWatchlist = 48
-        elif len(self.tradeIDs) >= 50:
-            maxLentgthOfWatchlist = 50
-
+        self.loadTradeIdsFromLiveWatchlist()
         currentLengthOfWatchlist = len(self.tradeIDs)
-        numberOfRequiredPlayers = maxLentgthOfWatchlist - currentLengthOfWatchlist
+        numberOfRequiredPlayers = maxLengthOfWatchlist - currentLengthOfWatchlist
 
         print("Getting %s players.." % numberOfRequiredPlayers)
         while i < numberOfRequiredPlayers:
             tradeID = resultsetTransfermarketsearch[i]["tradeId"]
             item_id = resultsetTransfermarketsearch[i]["id"]
             self.session.sendToWatchlist(int(tradeID))
-            self.tradeIDs.append(tradeID)
+            #self.tradeIDs.append(tradeID)
             # fut.sendToWatchlist(x["tradeId"])
             # watchlist = fut.watchlist()
             # print(str(x))
@@ -44,6 +43,7 @@ class Watchlist:
         :param listTradeIds: List of tradeIDs. Can be used to manually delete items from watchlist.
         """
         if listTradeIds == None:
+            self.loadTradeIdsFromLiveWatchlist()
             for tradeID in self.tradeIDs:
                 self.session.watchlistDelete(tradeID)
                 print("Player with TradeID %s deleted from Watchlist." % tradeID)
@@ -54,7 +54,13 @@ class Watchlist:
                 print("Player with TradeID %s deleted from Watchlist. (Manual via TradeID-List)" % tradeID)
             self.tradeIDs = []
 
-
+    def loadTradeIdsFromLiveWatchlist(self):
+        tradeIds = []
+        resultset = self.session.watchlist()
+        for item in resultset:
+            tradeIds.append(item['tradeId'])
+        self.tradeIDs = tradeIds
+        return self.tradeIDs
 
 """
 >>> session.sendToTradepile(item_id)                         # add card to tradepile
