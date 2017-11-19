@@ -59,7 +59,7 @@ fut = fut.Core(
 # q = "SELECT * FROM Player"
 
 """Suche"""
-items = fut.searchAuctions(ctype='player', level='gold', assetId='50530358', page_size=48)
+items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=10)
 # print(items)
 # items = dict()
 
@@ -73,34 +73,68 @@ watchlist = Watchlist(fut)
 #watchlist.clear(trade_ids)
 
 """Befüllen der Watchliste mit den gefundenen Items der Suche"""
-watchlist.fillup(items)
+#watchlist.fillup(items)
 # print(fut.watchlist())
-print("%s players on watchlist." % len(fut.watchlist()))
+#print("%s players on watchlist." % len(fut.watchlist()))
 
 """Löschen der Watchlist zur Laufzeit"""
-watchlist.clear()
-print("%s players on watchlist." % len(fut.watchlist()))
-print(fut.watchlist())
+#watchlist.clear()
+#print("%s players on watchlist." % len(fut.watchlist()))
+#print(fut.watchlist())
 
+
+"""Auslesen der abgelaufenen erfolgreichen Trades aus der Watchlist"""
+def succesTradesFromWatchlist():
+
+    currentBidList = []
+    assetIdList = []
+    buyNowPriceList = []
+    startingBidList = []
+    contractList = []
+    fitnessList = []
+
+    for y in fut.watchlist():
+
+        if y["tradeState"] == "closed":
+
+            currentBidList.append(y["currentBid"])
+            assetIdList.append(y["assetId"])
+            buyNowPriceList.append(y["buyNowPrice"])
+            startingBidList.append(y["startingBid"])
+            contractList.append(y["contract"])
+            fitnessList.append(y["fitness"])
+
+    x = list(zip(currentBidList, assetIdList, buyNowPriceList, startingBidList))
+    print(x)
+
+succesTradesFromWatchlist()
 
 #JSON Dump
 
 # player ist eine freie Variable
 # items in die Liste in der die Suchergebnisse gespeichert werden
 
+def searchDefinedPlayers():
+    fut.searchAuctions(ctype='player')
+
 def searchSavedInList():
+
+    searchPlayers = fut.searchAuctions(ctype="player", rare="true", level="gold")
 
     tradeIdList = []
     buyNowPriceList = []
     startingBidList = []
+    expiresList = []
 
-    for search in items:
+    for search in searchPlayers:
         tradeIdList.append(search["tradeId"])
         buyNowPriceList.append(search["buyNowPrice"])
         startingBidList.append(search["startingBid"])
-#    print(tradeIdList, buyNowPriceList, startingBidList)
+        expiresList.append(search["expires"])
 
-# searchSavedInList()
+
+
+#searchSavedInList()
 
 
 
@@ -147,6 +181,7 @@ def playerInList():
             if k == "nationality":
                 nationalityList.append(v)
 
+#playerInList()
 #q = "SHOW DATABASES"
 #q = "SHOW TABLES"
 
