@@ -107,6 +107,7 @@ def succesTradesFromWatchlist():
     x = list(zip(currentBidList, assetIdList, buyNowPriceList, startingBidList))
     print(x)
 
+
 succesTradesFromWatchlist()
 
 #JSON Dump
