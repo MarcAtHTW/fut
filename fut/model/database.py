@@ -1,5 +1,6 @@
 import json
 import pymysql
+import sys
 
 
 def executeSqlFromFile(connection, filename):
@@ -77,8 +78,12 @@ def loadPlayerDatabase(coreobject, connection):
     playerDataList = [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList]
 
     # q = "DROP TABLE IF EXISTS `fut_players`; CREATE TABLE IF NOT EXISTS fut_players ( ressourceId VARCHAR(15) NOT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, firstname VARCHAR(45) DEFAULT NULL, rating INT(3) DEFAULT NULL, nationality INT(3) DEFAULT NULL, PRIMARY KEY (ressourceId)) "
-    sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, %s, %s, %s, %s)"
+    sql = "insert into fut_players (ressourceId, firstname, lastname, surname, rating, nationality) values (%s, %s, convert(%s using utf8), %s, %s, %s)"
 
-    result = connection.insert(sql, ('2', 'testname', 'testlastname', 'testsurname', 87, 12))
-    # result = connection.insert(sql, [idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList])
-    print(result)
+    # Erstellung einer Liste bestehend aus den Listen der Attribute
+    x = list(zip(idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList))
+
+    # Einfügung der Liste x in die Datenbank
+    for item in x:
+        connection.insert(sql, x)
+
