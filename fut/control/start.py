@@ -4,6 +4,7 @@ import os
 import configparser
 from fut.model import dbConnector as DB
 from fut.model.database import loadPlayerDatabase, executeSqlFromFile
+from fut.model.watchlist import  Watchlist
 
 def getCredentials():
     """ Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -45,51 +46,40 @@ fut = fut.Core(
 )
 
 # create fut_players table
-print("create table")
+# print("create table")
 # executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
 # fill fut_players table
-print("insert data")
+# print("insert data")
 # loadPlayerDatabase(fut, db)
 
 
 
 
-#Test Query
+"""Test Query"""
 # q = "SELECT * FROM Player"
 
-#Suche
-items = fut.searchAuctions(ctype='player', level='gold', assetId='50530358')
+"""Suche"""
+items = fut.searchAuctions(ctype='player', level='gold', assetId='50530358', page_size=48)
 # print(items)
 # items = dict()
 
-print(len(fut.watchlist()))
+# print(len(fut.watchlist()))
 
+"""Objekterzeugung Watchlist"""
+watchlist = Watchlist(fut)
 
+"""Löschen der Watchlist anhand einer manuellen TradeIDListe"""
+#trade_ids = []
+#watchlist.clear(trade_ids)
+
+"""Befüllen der Watchliste mit den gefundenen Items der Suche"""
+watchlist.fillup(items)
 # print(fut.watchlist())
-def myloopyloop(args):
-    """
+print("%s players on watchlist." % len(fut.watchlist()))
 
-    :return:
-    """
-    i = 0
-    for x in args:
-        myid = x["tradeId"]
-        item_id = x["id"]
-        print(myid)
-        print(i)
-        if (i <= 15):
-            fut.sendToWatchlist(int(myid))
-            # fut.sendToWatchlist(x["tradeId"])
-            # watchlist = fut.watchlist()
-            # print(str(x))
-            # print(watchlist)
-        i = i + 1
-
-
-myloopyloop(items)
-# fut.watchlistDelete(202872169888)
-print(len(fut.watchlist()))
-
+"""Löschen der Watchlist zur Laufzeit"""
+watchlist.clear()
+print("%s players on watchlist." % len(fut.watchlist()))
 print(fut.watchlist())
 
 
