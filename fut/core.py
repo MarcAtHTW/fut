@@ -420,7 +420,9 @@ class Core(object):
 
                 if isinstance(code, PinAutomater):
                     imapConnection = code.login()
+                    imapConnection.loadSecurityCodeFromMailbox()
                     code = imapConnection.getPin()
+                    imapConnection.logoff()
 
                 self.r.headers['Referer'] = url = rc.url
                 # self.r.headers['Upgrade-Insecure-Requests'] = '1'  # ?

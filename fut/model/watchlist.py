@@ -55,6 +55,10 @@ class Watchlist:
             self.tradeIDs = []
 
     def loadTradeIdsFromLiveWatchlist(self):
+        """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
+        :rtype: list
+        :return:  live Trade-IDs from watchlist.
+        """
         tradeIds = []
         resultset = self.session.watchlist()
         for item in resultset:
