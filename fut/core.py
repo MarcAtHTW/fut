@@ -15,6 +15,11 @@ import time
 import json
 import pyotp
 # from datetime import datetime, timedelta
+
+# for PinAutomater
+from fut.model.pinAutomater import PinAutomater
+
+
 try:
     from cookielib import LWPCookieJar
 except ImportError:
@@ -412,6 +417,11 @@ class Core(object):
                     # self.saveSession()
                     # raise FutError(reason='Error during login process - code is required.')
                     code = input('Enter code: ')
+
+                if isinstance(code, PinAutomater):
+                    imapConnection = code.login()
+                    code = imapConnection.getPin()
+
                 self.r.headers['Referer'] = url = rc.url
                 # self.r.headers['Upgrade-Insecure-Requests'] = '1'  # ?
                 # self.r.headers['Origin'] = 'https://signin.ea.com'

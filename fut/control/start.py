@@ -5,6 +5,7 @@ import configparser
 from fut.model import dbConnector as DB
 from fut.model.database import loadPlayerDatabase, executeSqlFromFile
 from fut.model.watchlist import  Watchlist
+from fut.model.pinAutomater import PinAutomater
 
 def getCredentials():
     """ Lädt die Zugangsdaten für die Datenbank + Anmeldung bei EA.
@@ -22,7 +23,11 @@ def getCredentials():
         "DB_Name" : config.get("configuration-DB", "db"),
         "EA_Mail" : config.get("configuration-EA", "mail"),
         "EA_Pass" : config.get("configuration-EA", "pass"),
-        "EA_Secr" : config.get("configuration-EA", "secret")
+        "EA_Secr" : config.get("configuration-EA", "secret"),
+        "MAIL_Host" : config.get("configuration-MAIL-IMAP", "host"),
+        "MAIL_User": config.get("configuration-MAIL-IMAP", "user"),
+        "MAIL_Pass": config.get("configuration-MAIL-IMAP", "pass"),
+        "MAIL_Port": config.get("configuration-MAIL-IMAP", "port")
     }
 
     return credentials
@@ -37,11 +42,19 @@ db = DB.Database(
     credentials['DB_Name']
 )
 
+pinAutomater = PinAutomater(
+    credentials['MAIL_Host'],
+    credentials['MAIL_User'],
+    credentials['MAIL_Pass'],
+    credentials['MAIL_Port'],
+)
+
 #Verbindung zu EA
 fut = fut.Core(
     credentials['EA_Mail'],
     credentials['EA_Pass'],
     credentials['EA_Secr'],
+    code= pinAutomater,
     debug=True
 )
 

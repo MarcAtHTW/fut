@@ -11,9 +11,9 @@ class Watchlist:
         self.length                     = len(fut_session.watchlist())
 
     def fillup(self, resultsetTransfermarketsearch):
-        """
-
-        :param resultsetTransfermarketsearch:
+        """ Fills up Watchlist with items found at a market search.
+        :type resultsetTransfermarketsearch: list
+        :param resultsetTransfermarketsearch: Items of transfer market.
         """
 
         i = 0
@@ -39,9 +39,9 @@ class Watchlist:
             print("Added Player No %s ID:%s  to Watchlist" % (i, tradeID))
 
     def clear(self, listTradeIds=None):
-        """
-
-        :param listTradeIds:
+        """ Clears the current watchlist.
+        :type listTradeIds: list
+        :param listTradeIds: List of tradeIDs. Can be used to manually delete items from watchlist.
         """
         if listTradeIds == None:
             for tradeID in self.tradeIDs:
@@ -51,7 +51,7 @@ class Watchlist:
         elif listTradeIds != None:
             for tradeID in listTradeIds:
                 self.session.watchlistDelete(tradeID)
-                print("Player with TradeID %s deleted from Watchlist. (Via manual TradeID-List" % tradeID)
+                print("Player with TradeID %s deleted from Watchlist. (Manual via TradeID-List)" % tradeID)
             self.tradeIDs = []
 
 
