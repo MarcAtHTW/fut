@@ -63,7 +63,7 @@ fut = fut.Core(
 """create fut_watchlist table"""
 # executeSqlFromFile(db, '../model/sqlqueries/futwatchlist.sql')
 """ fill fut_players table """
-#loadPlayerDatabase(fut, db)
+loadPlayerDatabase(fut, db)
 
 """Erfolgreiche Trades aus Watchlist in DB speichern"""
 #succesTradesFromWatchlist(fut,db)
