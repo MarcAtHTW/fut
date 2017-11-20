@@ -6,6 +6,7 @@ from fut.model.watchlist import  Watchlist
 
 
 
+
 def executeSqlFromFile(connection, filename):
     """    Oeffnet sql file, laedt enthaltene SQL-Skripte und fuehrt eines nach dem anderen aus.
     Quelle: https://stackoverflow.com/questions/19472922/reading-external-sql-script-in-python
@@ -84,15 +85,14 @@ def loadPlayerDatabase(coreobject, connection):
 
     # Erstellung einer Liste bestehend aus den Listen der Attribute
     x = list(zip(idList, firstnameList, lastnameList, surnameList, ratingList, nationalityList))
-
+    print(x)
     # Einfügung der Liste x in die Datenbank
     for item in x:
-        connection.insert(sql, x)
+        connection.insert(sql, item)
 
 
 def succesTradesFromWatchlist(coreobject, connection):
 
-    watchlist = Watchlist(coreobject)
     #print(coreobject.watchlist())
 
     currentBidList = []
@@ -103,10 +103,14 @@ def succesTradesFromWatchlist(coreobject, connection):
     fitnessList = []
     timestampList = []
     tradeIdList = []
+    idList = []
+    offersList = []
+    expiresList = []
+    sellerEstablished = []
 
     for y in coreobject.watchlist():
 
-        if y["tradeState"] == "closed":
+        #if y["tradeState"] == "closed":
 
             currentBidList.append(y["currentBid"])
             assetIdList.append(y["assetId"])
@@ -116,14 +120,19 @@ def succesTradesFromWatchlist(coreobject, connection):
             fitnessList.append(y["fitness"])
             timestampList.append(y["timestamp"])
             tradeIdList.append(y["tradeId"])
+            idList.append(y["id"])
+            offersList.append(y["offers"])
+            expiresList.append(y["expires"])
+            sellerEstablished.append(y["sellerEstablished"])
 
     # Erstellung einer Liste bestehend aus den Listen der Attribute
-    x = list(zip(tradeIdList, buyNowPriceList))
+    x = list(zip(tradeIdList, currentBidList, assetIdList))
 
-    sql = "insert into fut_watchlist (tradeId, buyNowPrice) values (%s, %)"
+    print(x)
+
+    sql = "insert into fut_watchlist (tradeId, currentBid, assetId) values (%s, %s, %s)"
 
     # Einfügung der Liste x in die Datenbank
     for item in x:
-        connection.insert(sql, x)
+        connection.insert(sql, item)
 
-    print(tradeIdList)
