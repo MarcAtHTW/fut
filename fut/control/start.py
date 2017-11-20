@@ -80,6 +80,13 @@ items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=48)
 
 """Objekterzeugung Watchlist"""
 watchlist = Watchlist(fut)
+
+""" Watchlist im json-Pretty-Print (inkl. Zeilenumbrüche)"""
+#print(watchlist.getWatchlistInJsonPrettyPrint())
+
+""" Ladem der Watchlist-Items"""
+watchlistItems = watchlist.loadItemsFromLiveWatchlist()
+
 #watchlist.clear()
 watchlist.loadTradeIdsFromLiveWatchlist()
 
@@ -90,12 +97,14 @@ watchlist.loadTradeIdsFromLiveWatchlist()
 """Befüllen der Watchliste mit den gefundenen Items der Suche"""
 watchlist.fillup(items, 10)
 
+jsonWatchlist = watchlist.getWatchlistInJsonPrettyPrint()
 print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
-print(fut.watchlist())
+print(jsonWatchlist)
 
 """Löschen der Watchlist zur Laufzeit"""
 watchlist.clear()
-print("%s players on watchlist." % len(fut.watchlist()))
+jsonWatchlist = watchlist.getWatchlistInJsonPrettyPrint()
+print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
 print(fut.watchlist())
 
 

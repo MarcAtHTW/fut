@@ -3,6 +3,7 @@ import json
 class Watchlist:
 
     tradeIDs = []
+    items = []
 
     def __init__(self, fut_session):
         self.session                    = fut_session
@@ -65,6 +66,27 @@ class Watchlist:
             tradeIds.append(item['tradeId'])
         self.tradeIDs = tradeIds
         return self.tradeIDs
+
+    def loadItemsFromLiveWatchlist(self):
+        """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
+        :rtype: list
+        :return:  live items from watchlist.
+        """
+        resultset = self.session.watchlist()
+        self.items = resultset
+        return self.items
+
+    def getWatchlistInJsonPrettyPrint(self):
+        """ Returns the current Watchlist in a json pretty print string.
+        :rtype: str
+        :return: Watchlist in json pretty print
+        """
+        resultset = self.session.watchlist()
+        prettyJsonWatchlist = json.dumps(resultset, indent=4, sort_keys=True)
+        return prettyJsonWatchlist
+
+
+
 
 """
 >>> session.sendToTradepile(item_id)                         # add card to tradepile
