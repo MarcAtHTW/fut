@@ -19,4 +19,5 @@ screenlog.0
 codecov.yml
 credentials.conf
 .idea/
+idea/
 fut/model/mycredentials.conf

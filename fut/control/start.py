@@ -3,7 +3,7 @@ import json
 import os
 import configparser
 from fut.model import dbConnector as DB
-from fut.model.database import loadPlayerDatabase, executeSqlFromFile
+from fut.model.database import loadPlayerDatabase, executeSqlFromFile, succesTradesFromWatchlist
 from fut.model.watchlist import  Watchlist
 from fut.model.pinAutomater import PinAutomater
 
@@ -63,106 +63,41 @@ fut = fut.Core(
 """create fut_watchlist table"""
 # executeSqlFromFile(db, '../model/sqlqueries/futwatchlist.sql')
 """ fill fut_players table """
-# loadPlayerDatabase(fut, db)
+#loadPlayerDatabase(fut, db)
 
-
+"""Erfolgreiche Trades aus Watchlist in DB speichern"""
+#succesTradesFromWatchlist(fut,db)
 
 
 """Test Query"""
 # q = "SELECT * FROM Player"
 
 """Suche"""
-items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=48)
+#items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=48)
 # print(items)
 # items = dict()
 
 # print(len(fut.watchlist()))
 
 """Objekterzeugung Watchlist"""
-watchlist = Watchlist(fut)
-
-""" Watchlist im json-Pretty-Print (inkl. Zeilenumbrüche)"""
-#print(watchlist.getWatchlistInJsonPrettyPrint())
-
-""" Ladem der Watchlist-Items"""
-watchlistItems = watchlist.loadItemsFromLiveWatchlist()
-
+#watchlist = Watchlist(fut)
 #watchlist.clear()
-watchlist.loadTradeIdsFromLiveWatchlist()
+#watchlist.loadTradeIdsFromLiveWatchlist()
 
 """Löschen der Watchlist anhand einer manuellen TradeIDListe"""
 #trade_ids = []
 #watchlist.clear(trade_ids)
 
 """Befüllen der Watchliste mit den gefundenen Items der Suche"""
-watchlist.fillup(items, 10)
+#watchlist.fillup(items, 10)
 
-jsonWatchlist = watchlist.getWatchlistInJsonPrettyPrint()
-print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
-print(jsonWatchlist)
+#print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
+#print(fut.watchlist())
 
 """Löschen der Watchlist zur Laufzeit"""
-watchlist.clear()
-jsonWatchlist = watchlist.getWatchlistInJsonPrettyPrint()
-print("%s players on watchlist." % len(watchlist.loadTradeIdsFromLiveWatchlist()))
-print(fut.watchlist())
-
-
-"""Auslesen der abgelaufenen erfolgreichen Trades aus der Watchlist"""
-def succesTradesFromWatchlist():
-
-    currentBidList = []
-    assetIdList = []
-    buyNowPriceList = []
-    startingBidList = []
-    contractList = []
-    fitnessList = []
-
-    for y in fut.watchlist():
-
-        if y["tradeState"] == "closed":
-
-            currentBidList.append(y["currentBid"])
-            assetIdList.append(y["assetId"])
-            buyNowPriceList.append(y["buyNowPrice"])
-            startingBidList.append(y["startingBid"])
-            contractList.append(y["contract"])
-            fitnessList.append(y["fitness"])
-
-    x = list(zip(currentBidList, assetIdList, buyNowPriceList, startingBidList))
-    print(x)
-
-
-succesTradesFromWatchlist()
-
-#JSON Dump
-
-# player ist eine freie Variable
-# items in die Liste in der die Suchergebnisse gespeichert werden
-
-def searchDefinedPlayers():
-    fut.searchAuctions(ctype='player')
-
-def searchSavedInList():
-
-    searchPlayers = fut.searchAuctions(ctype="player", rare="true", level="gold")
-
-    tradeIdList = []
-    buyNowPriceList = []
-    startingBidList = []
-    expiresList = []
-
-    for search in searchPlayers:
-        tradeIdList.append(search["tradeId"])
-        buyNowPriceList.append(search["buyNowPrice"])
-        startingBidList.append(search["startingBid"])
-        expiresList.append(search["expires"])
-
-
-
-#searchSavedInList()
-
-
+#watchlist.clear()
+#print("%s players on watchlist." % len(fut.watchlist()))
+#print(fut.watchlist())
 
 #backup
 
@@ -178,34 +113,6 @@ def searchSavedInList():
 #        print(players[k[i]])
 
 #Ende backup
-
-# Definition von Listen und Füllung dieser mit Player Inhalt
-
-def playerInList():
-    players = fut.players
-
-    idList = []
-    firstnameList = []
-    lastnameList = []
-    surnameList = []
-    ratingList = []
-    nationalityList = []
-
-    for key, value in players.items():
-
-        for k,v in value.items():
-            if k == "firstname":
-                firstnameList.append(v)
-            if k == "lastname":
-                lastnameList.append(v)
-            if k == "id":
-                idList.append(v)
-            if k == "surname":
-                surnameList.append(v)
-            if k == "rating":
-                ratingList.append(v)
-            if k == "nationality":
-                nationalityList.append(v)
 
 #playerInList()
 #q = "SHOW DATABASES"
