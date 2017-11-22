@@ -63,7 +63,7 @@ fut = fut.Core(
 """create fut_watchlist table"""
 # executeSqlFromFile(db, '../model/sqlqueries/futwatchlist.sql')
 """ fill fut_players table """
-loadPlayerDatabase(fut, db)
+# loadPlayerDatabase(fut, db)
 
 """Erfolgreiche Trades aus Watchlist in DB speichern"""
 #succesTradesFromWatchlist(fut,db)
@@ -125,15 +125,6 @@ loadPlayerDatabase(fut, db)
 #parsed = json.loads(items)
 #print(json.dumps(parsed, indent=4, sort_keys=True))
 #print(items)
-
-#players = fut.players
-#nations = fut.nations()
-
-#leagues = fut.leagues()
-#teams = fut.teams()
-#stadiums = fut.stadiums()
-#players = fut.players()
-#playestyles = fut.playstyles()
 
 #fut.logout()
 print('start.py Done')
