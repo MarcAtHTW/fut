@@ -90,10 +90,8 @@ def loadPlayerDatabase(coreobject, connection):
     for item in x:
         connection.insert(sql, item)
 
-
+"""Speicherung der Watchlist in der Datenbank mit allen Attributen"""
 def succesTradesFromWatchlist(coreobject, connection):
-
-    #print(coreobject.watchlist())
 
     currentBidList = []
     assetIdList = []
@@ -106,7 +104,60 @@ def succesTradesFromWatchlist(coreobject, connection):
     idList = []
     offersList = []
     expiresList = []
-    sellerEstablished = []
+    sellerEstablishedList = []
+    tradeStateList = []
+    bidStateList = []
+    sellerIdList = []
+    sellerNameList = []
+    watchedList = []
+    time_stampList = []
+    ratingList = []
+    resourceIdList = []
+    itemStateList = []
+    rareflagList = []
+    formationList = []
+    leagueIdList = []
+    injuryTypeList = []
+    injuryGamesList = []
+    lastSalePriceList = []
+    trainingList = []
+    suspensionList = []
+    pos_itionList = []
+    playStyleList = []
+    discardValueList = []
+    itemTypeList = []
+    cardTypeList = []
+    cardsubtypeidList = []
+    ownersList = []
+    untradeableList = []
+    moraleList = []
+    statsList0List = []
+    statsList1List = []
+    statsList2List = []
+    statsList3List = []
+    statsList4List = []
+    lifetimeStats0List = []
+    lifetimeStats1List = []
+    lifetimeStats2List = []
+    lifetimeStats3List = []
+    lifetimeStats4List = []
+    attributeList0List = []
+    attributeList1List = []
+    attributeList2List = []
+    attributeList3List = []
+    attributeList4List = []
+    attributeList5List = []
+    teamidList = []
+    assistsList = []
+    lifetimeAssistsList = []
+    loyaltyBonusList = []
+    pileList = []
+    nationList = []
+    ye_arList = []
+    resourceGameYearList = []
+    cou_ntList = []
+    untradeableCountList = []
+
 
     for y in coreobject.watchlist():
 
@@ -123,14 +174,71 @@ def succesTradesFromWatchlist(coreobject, connection):
             idList.append(y["id"])
             offersList.append(y["offers"])
             expiresList.append(y["expires"])
-            sellerEstablished.append(y["sellerEstablished"])
+            sellerEstablishedList.append(y["sellerEstablished"])
+            tradeStateList.append(y["tradeState"])
+            bidStateList.append(y["bidState"])
+            sellerIdList.append(y["sellerId"])
+            sellerNameList.append(y["sellerName"])
+            watchedList.append(y["watched"])
+            time_stampList.append(y["timestamp"])
+            ratingList.append(y["rating"])
+            resourceIdList.append(y["resourceId"])
+            itemStateList.append(y["itemState"])
+            rareflagList.append(y["rareflag"])
+            formationList.append(y["formation"])
+            leagueIdList.append(y["leagueId"])
+            injuryTypeList.append(y["injuryType"])
+            injuryGamesList.append(y["injuryGames"])
+            lastSalePriceList.append(y["lastSalePrice"])
+            trainingList.append(y["training"])
+            suspensionList.append(y["suspension"])
+            pos_itionList.append(y["position"])
+            playStyleList.append(y["playStyle"])
+            discardValueList.append(y["discardValue"])
+            itemTypeList.append(y["itemType"])
+            cardTypeList.append(y["cardType"])
+            cardsubtypeidList.append(y["cardsubtypeid"])
+            ownersList.append(y["owners"])
+            untradeableList.append(y["untradeable"])
+            moraleList.append(y["morale"])
+            statsList0List.append(y["statsList"][0]["value"])
+            statsList1List.append(y["statsList"][1]["value"])
+            statsList2List.append(y["statsList"][2]["value"])
+            statsList3List.append(y["statsList"][3]["value"])
+            statsList4List.append(y["statsList"][4]["value"])
+            lifetimeStats0List.append(y["lifetimeStats"][0]["value"])
+            lifetimeStats1List.append(y["lifetimeStats"][1]["value"])
+            lifetimeStats2List.append(y["lifetimeStats"][2]["value"])
+            lifetimeStats3List.append(y["lifetimeStats"][3]["value"])
+            lifetimeStats4List.append(y["lifetimeStats"][4]["value"])
+            attributeList0List.append(y["attributeList"][0]["value"])
+            attributeList1List.append(y["attributeList"][1]["value"])
+            attributeList2List.append(y["attributeList"][2]["value"])
+            attributeList3List.append(y["attributeList"][3]["value"])
+            attributeList4List.append(y["attributeList"][4]["value"])
+            attributeList5List.append(y["attributeList"][5]["value"])
+            teamidList.append(y["teamid"])
+            assistsList.append(y["assists"])
+            lifetimeAssistsList.append(y["lifetimeAssists"])
+            loyaltyBonusList.append(y["loyaltyBonus"])
+            pileList.append(y["pile"])
+            nationList.append(y["nation"])
+            ye_arList.append(y["year"])
+            resourceGameYearList.append(y["resourceGameYear"])
+            cou_ntList.append(y["count"])
+            untradeableCountList.append(y["untradeableCount"])
 
     # Erstellung einer Liste bestehend aus den Listen der Attribute
-    x = list(zip(tradeIdList, currentBidList, assetIdList))
+    x = list(zip(tradeIdList, buyNowPriceList, tradeStateList, bidStateList, startingBidList, idList, offersList, currentBidList, expiresList, sellerEstablishedList, sellerIdList, sellerNameList, watchedList, time_stampList,
+    ratingList, assetIdList, resourceIdList, itemStateList, rareflagList, formationList, leagueIdList, injuryTypeList, injuryGamesList, lastSalePriceList, fitnessList, trainingList, suspensionList, contractList, pos_itionList, playStyleList, discardValueList, itemTypeList,
+                  cardTypeList, cardsubtypeidList, ownersList, untradeableList, moraleList, statsList0List, statsList1List, statsList2List, statsList3List, statsList4List, lifetimeStats0List, lifetimeStats1List, lifetimeStats2List, lifetimeStats3List, lifetimeStats4List,
+                  attributeList0List, attributeList1List, attributeList2List, attributeList3List, attributeList4List, attributeList5List, teamidList, assistsList, lifetimeAssistsList, loyaltyBonusList, pileList, nationList, ye_arList, resourceGameYearList, cou_ntList, untradeableCountList))
 
-    print(x)
-
-    sql = "insert into fut_watchlist (tradeId, currentBid, assetId) values (%s, %s, %s)"
+    sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
+          "rating, assetId, resourceId, itemState, rareflag, formation, leagueId, injuryType, injuryGames, lastSalePrice, fitness, training, suspension, contract, pos_ition, playStyle, discardValue, itemType, " \
+            "cardType, cardsubtypeid, owners, untradeable, morale, statsList0, statsList1, statsList2, statsList3, statsList4, lifetimeStats0, lifetimeStats1, lifetimeStats2, lifetimeStats3, lifetimeStats4, " \
+           "attributeList0, attributeList1, attributeList2, attributeList3, attributeList4, attributeList5, teamid, assists, lifetimeAssists, loyaltyBonus, pile, nation, ye_ar, resourceGameYear, cou_nt, untradeableCount) " \
+           "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     # Einfügung der Liste x in die Datenbank
     for item in x:
