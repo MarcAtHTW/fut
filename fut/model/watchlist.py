@@ -85,8 +85,23 @@ class Watchlist:
         prettyJsonWatchlist = json.dumps(resultset, indent=4, sort_keys=True)
         return prettyJsonWatchlist
 
+    def getPlayerWithMaxExpireTime(self):
+        """
 
+        :return:
+        """
+        playerWithMaxExpireTime_ID       = 0
+        playerWithMaxExpireTime_TradeID  = 0
+        maxExpireTime                    = 0
 
+        resultset = self.session.watchlist()
+        for item in resultset:
+            if item['expires'] > maxExpireTime:
+                maxExpireTime                       = item['expires']
+                playerWithMaxExpireTime_ID          = item['id']
+                playerWithMaxExpireTime_TradeID     = item['tradeId']
+
+        return playerWithMaxExpireTime_ID, playerWithMaxExpireTime_TradeID
 
 """
 >>> session.sendToTradepile(item_id)                         # add card to tradepile
