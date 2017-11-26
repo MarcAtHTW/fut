@@ -1,20 +1,26 @@
 import json
+from datetime import datetime
+from fut.model.enumeration import State
 
 class Watchlist:
 
     tradeIDs = []
     items = []
+    currentState = State.pending
+
 
     def __init__(self, fut_session):
         self.session                    = fut_session
         self.tradepile                  = fut_session.tradepile()
-        self.unassigned                 = fut_session.unassigned()
+        #self.unassigned                 = fut_session.unassigned()
         #self.club                       = fut_session.club(count=10, level=10, type=1, start=0)
         #self.clubConsumablesDetails     = fut_session.clubConsumableDetails()
         self.length                     = len(fut_session.watchlist())
+        self.expire                     = {}
 
     def fillup(self, resultsetTransfermarketsearch, maxLengthOfWatchlist=50):
         """ Fills up Watchlist with items found at a market search.
+        :param numberOfPlayerToSendToWatchlist:
         :type resultsetTransfermarketsearch: list
         :param resultsetTransfermarketsearch: Items of transfer market.
         :type maxLengthOfWatchlist: int
@@ -39,6 +45,7 @@ class Watchlist:
             print("Added Player No %s ID:%s  to Watchlist" % (i, tradeID))
 
     def clear(self, listTradeIds=None):
+        self.currentState = State.delete
         """ Clears the current watchlist.
         :type listTradeIds: list
         :param listTradeIds: List of tradeIDs. Can be used to manually delete items from watchlist.
@@ -54,6 +61,7 @@ class Watchlist:
                 self.session.watchlistDelete(tradeID)
                 print("Player with TradeID %s deleted from Watchlist. (Manual via TradeID-List)" % tradeID)
             self.tradeIDs = []
+        self.currentState = State.pending
 
     def loadTradeIdsFromLiveWatchlist(self):
         """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
@@ -85,8 +93,10 @@ class Watchlist:
         prettyJsonWatchlist = json.dumps(resultset, indent=4, sort_keys=True)
         return prettyJsonWatchlist
 
+
     def getPlayerWithMaxExpireTime(self):
-        """
+        """ Gets the player who stays longest time at watchlist.
+        Active items on Watchlost are required.
 
         :return:
         """
@@ -102,6 +112,60 @@ class Watchlist:
                 playerWithMaxExpireTime_TradeID     = item['tradeId']
 
         return playerWithMaxExpireTime_ID, playerWithMaxExpireTime_TradeID
+
+
+    def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, count, assetId):
+        """ Sends items to watchlist using min expire time in munites, count of players and assetId.
+        :type minExpireTimeInMinutes: int
+        :type count: int
+        :type assetId: int
+        :param minExpireTimeInMinutes: Minimum expiretime in minutes.
+        :param count: Count of items.
+        :param assetId: Item asset-id.
+        """
+        self.currentState = State.search
+        minExpireTimeInSeconds = minExpireTimeInMinutes * 60
+        itemsWithMinExpireTime = []
+
+        page_size = 48
+        while len(itemsWithMinExpireTime) < count:
+            #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
+            items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, page_size=page_size)
+            for item in items_resultset:
+                if item['expires'] > minExpireTimeInSeconds:
+                    if count > 0:
+                        itemsWithMinExpireTime.append(item)
+                        count -= 1
+            page_size += 1
+        self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
+        self.expire['created']                  = datetime.now()
+
+        print("Sending %s items to watchlist." % len(itemsWithMinExpireTime))
+        for item in itemsWithMinExpireTime:
+            self.session.sendToWatchlist(item['tradeId'])
+            print('Player with TradeID %s added to Watchlist' % item['tradeId'])
+        self.setExpiretime()
+        self.currentState = State.pending
+
+
+    def setExpiretime(self):
+        """ Sets the max Expiretime of current watchlist items getting from current session."""
+        itemsOfWatchlist    = self.session.watchlist()
+        maxExpiretime       = 0
+
+        for item in itemsOfWatchlist:
+            if item['expires'] > maxExpiretime:
+                maxExpiretime = item['expires']
+        self.expire['expires'] = maxExpiretime
+
+    def getExpiretime(self):
+        """ Gets the max Expiretime of current watchlist items.
+        :rtype: int
+        :return: Expiretime in minutes.
+        """
+        return self.expire['expires'] / 60
+
+
 
 """
 >>> session.sendToTradepile(item_id)                         # add card to tradepile
