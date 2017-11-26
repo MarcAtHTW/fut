@@ -2,7 +2,7 @@ import fut
 import json
 import time
 
-from fut.model import dbConnector as DB
+from fut.model import dbConnector as DB, watchlist
 from fut.model.database import loadPlayerDatabase, executeSqlFromFile, succesTradesFromWatchlist
 from fut.model.watchlist import Watchlist
 from fut.model.pinAutomater import PinAutomater
@@ -70,13 +70,33 @@ watchlist = Watchlist(fut)
 #watchlist.loadItemsFromLiveWatchlist()
 
 assetId         = 50530358      # Eindeutige KartenID (z.B. Rodriguez in Form)
-minExpireTime   = 2            # Min expiretime in minutes
+minExpireTime   = 1            # Min expiretime in minutes
 numberOfPlayers = 50            # Number of players to add to watchlist
 
-watchlist.clear()
-watchlist.sendItemsToWatchlistWithMinExpireTime(minExpireTime,numberOfPlayers, assetId)
-watchlist.setExpiretime()
-print(watchlist.getExpiretime())
+while True:
+    watchlist.printCurrentStateToConsole()
+    """ Clear Watchlist at startup. """
+    watchlist.clear()
+
+    """ Fill up Wathlist """
+    watchlist.sendItemsToWatchlistWithMinExpireTime(minExpireTime,numberOfPlayers, assetId)
+
+    """ Wait expiretime """
+    watchlist.setExpiretime()
+    expireTime = watchlist.getExpiretime()
+    watchlist.setCurrentState(State.wait)
+    currentState = watchlist.getCurrentState()
+    print("Watchlist expires in {} minutes. {}...".format(expireTime/60, currentState))
+    currentTime = time.strftime("%H:%M:%S")
+    print("Current time: {}".format(currentTime))
+    print("Wait...")
+    time.sleep(watchlist.getExpiretime())
+
+    """ Save Trades """
+    watchlist.setCurrentState(State.saveTrades)
+    watchlist.printCurrentStateToConsole()
+    succesTradesFromWatchlist(watchlist.session, db)
+    watchlist.setCurrentState(State.pending)
 
 
 """" Ende Tests"""
