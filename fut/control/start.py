@@ -1,5 +1,6 @@
 import fut
 import json
+import time
 
 from fut.model import dbConnector as DB
 from fut.model.database import loadPlayerDatabase, executeSqlFromFile, succesTradesFromWatchlist
@@ -57,7 +58,6 @@ fut = fut.Core(
 
 """Objekterzeugung Watchlist"""
 watchlist = Watchlist(fut)
-watchlist.clear()
 #watchlist.loadTradeIdsFromLiveWatchlist()
 
 """Löschen der Watchlist anhand einer manuellen TradeIDListe"""
@@ -70,9 +70,10 @@ watchlist.clear()
 #watchlist.loadItemsFromLiveWatchlist()
 
 assetId         = 50530358      # Eindeutige KartenID (z.B. Rodriguez in Form)
-minExpireTime   = 20            # Min expiretime in minutes"
-numberOfPlayers = 10            # Number of players to add to watchlist
+minExpireTime   = 2            # Min expiretime in minutes
+numberOfPlayers = 50            # Number of players to add to watchlist
 
+watchlist.clear()
 watchlist.sendItemsToWatchlistWithMinExpireTime(minExpireTime,numberOfPlayers, assetId)
 watchlist.setExpiretime()
 print(watchlist.getExpiretime())

@@ -52,14 +52,22 @@ class Watchlist:
         """
         if listTradeIds == None:
             self.loadTradeIdsFromLiveWatchlist()
+            lenItemsOnWatchlist = len(self.tradeIDs)
+            print("Deleting %s items from Watchlist." % lenItemsOnWatchlist)
+            i = 0
             for tradeID in self.tradeIDs:
+                i+=1
                 self.session.watchlistDelete(tradeID)
-                print("Player with TradeID %s deleted from Watchlist." % tradeID)
+                print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist, tradeID))
             self.tradeIDs = []
         elif listTradeIds != None:
+            lenItemsTradeIdlist = len(self.listTradeIds)
+            print("Deleting {} items from Watchlist.".format(lenItemsTradeIdlist))
+            i = 0
             for tradeID in listTradeIds:
+                i += 1
                 self.session.watchlistDelete(tradeID)
-                print("Player with TradeID %s deleted from Watchlist. (Manual via TradeID-List)" % tradeID)
+                print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsTradeIdlist, tradeID))
             self.tradeIDs = []
         self.currentState = State.pending
 
@@ -140,10 +148,14 @@ class Watchlist:
         self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
         self.expire['created']                  = datetime.now()
 
-        print("Sending %s items to watchlist." % len(itemsWithMinExpireTime))
+        print("Sending {} items to watchlist.".format(len(itemsWithMinExpireTime)))
+        i = 0
+        lenItemsWithMinExpireTime = len(itemsWithMinExpireTime)
         for item in itemsWithMinExpireTime:
-            self.session.sendToWatchlist(item['tradeId'])
-            print('Player with TradeID %s added to Watchlist' % item['tradeId'])
+            i += 1
+            tradeID = item['tradeId']
+            self.session.sendToWatchlist(tradeID)
+            print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
         self.setExpiretime()
         self.currentState = State.pending
 
