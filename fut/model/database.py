@@ -156,6 +156,22 @@ def succesTradesFromWatchlist(coreobject, connection):
     cou_ntList = []
     untradeableCountList = []
 
+    statsList0List.clear()
+    statsList1List.clear()
+    statsList2List.clear()
+    statsList3List.clear()
+    statsList4List.clear()
+    lifetimeStats0List.clear()
+    lifetimeStats1List.clear()
+    lifetimeStats2List.clear()
+    lifetimeStats3List.clear()
+    lifetimeStats4List.clear()
+    attributeList0List.clear()
+    attributeList1List.clear()
+    attributeList2List.clear()
+    attributeList3List.clear()
+    attributeList4List.clear()
+    attributeList5List.clear()
 
     for y in coreobject.watchlist():
         #if y["tradeState"] == "closed":
@@ -249,4 +265,6 @@ def succesTradesFromWatchlist(coreobject, connection):
     elif not isDataOK:
         print("Index Error in database.py. Go ahead..")
         pass
+
+
 
