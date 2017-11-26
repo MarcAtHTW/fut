@@ -158,9 +158,9 @@ def succesTradesFromWatchlist(coreobject, connection):
 
 
     for y in coreobject.watchlist():
-
         #if y["tradeState"] == "closed":
-
+        try:
+            gotdata = 'null'
             currentBidList.append(y["currentBid"])
             assetIdList.append(y["assetId"])
             buyNowPriceList.append(y["buyNowPrice"])
@@ -225,20 +225,28 @@ def succesTradesFromWatchlist(coreobject, connection):
             resourceGameYearList.append(y["resourceGameYear"])
             cou_ntList.append(y["count"])
             untradeableCountList.append(y["untradeableCount"])
+            isDataOK = True
+        except IndexError as e:
+            isDataOK = False
+            print("Index Error in database.py: {}".format(e))
 
-    # Erstellung einer Liste bestehend aus den Listen der Attribute
-    x = list(zip(tradeIdList, buyNowPriceList, tradeStateList, bidStateList, startingBidList, idList, offersList, currentBidList, expiresList, sellerEstablishedList, sellerIdList, sellerNameList, watchedList, time_stampList,
-    ratingList, assetIdList, resourceIdList, itemStateList, rareflagList, formationList, leagueIdList, injuryTypeList, injuryGamesList, lastSalePriceList, fitnessList, trainingList, suspensionList, contractList, pos_itionList, playStyleList, discardValueList, itemTypeList,
-                  cardTypeList, cardsubtypeidList, ownersList, untradeableList, moraleList, statsList0List, statsList1List, statsList2List, statsList3List, statsList4List, lifetimeStats0List, lifetimeStats1List, lifetimeStats2List, lifetimeStats3List, lifetimeStats4List,
-                  attributeList0List, attributeList1List, attributeList2List, attributeList3List, attributeList4List, attributeList5List, teamidList, assistsList, lifetimeAssistsList, loyaltyBonusList, pileList, nationList, ye_arList, resourceGameYearList, cou_ntList, untradeableCountList))
+    if isDataOK:
+        # Erstellung einer Liste bestehend aus den Listen der Attribute
+        x = list(zip(tradeIdList, buyNowPriceList, tradeStateList, bidStateList, startingBidList, idList, offersList, currentBidList, expiresList, sellerEstablishedList, sellerIdList, sellerNameList, watchedList, time_stampList,
+        ratingList, assetIdList, resourceIdList, itemStateList, rareflagList, formationList, leagueIdList, injuryTypeList, injuryGamesList, lastSalePriceList, fitnessList, trainingList, suspensionList, contractList, pos_itionList, playStyleList, discardValueList, itemTypeList,
+                      cardTypeList, cardsubtypeidList, ownersList, untradeableList, moraleList, statsList0List, statsList1List, statsList2List, statsList3List, statsList4List, lifetimeStats0List, lifetimeStats1List, lifetimeStats2List, lifetimeStats3List, lifetimeStats4List,
+                      attributeList0List, attributeList1List, attributeList2List, attributeList3List, attributeList4List, attributeList5List, teamidList, assistsList, lifetimeAssistsList, loyaltyBonusList, pileList, nationList, ye_arList, resourceGameYearList, cou_ntList, untradeableCountList))
 
-    sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
-          "rating, assetId, resourceId, itemState, rareflag, formation, leagueId, injuryType, injuryGames, lastSalePrice, fitness, training, suspension, contract, pos_ition, playStyle, discardValue, itemType, " \
-            "cardType, cardsubtypeid, owners, untradeable, morale, statsList0, statsList1, statsList2, statsList3, statsList4, lifetimeStats0, lifetimeStats1, lifetimeStats2, lifetimeStats3, lifetimeStats4, " \
-           "attributeList0, attributeList1, attributeList2, attributeList3, attributeList4, attributeList5, teamid, assists, lifetimeAssists, loyaltyBonus, pile, nation, ye_ar, resourceGameYear, cou_nt, untradeableCount) " \
-           "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
+              "rating, assetId, resourceId, itemState, rareflag, formation, leagueId, injuryType, injuryGames, lastSalePrice, fitness, training, suspension, contract, pos_ition, playStyle, discardValue, itemType, " \
+                "cardType, cardsubtypeid, owners, untradeable, morale, statsList0, statsList1, statsList2, statsList3, statsList4, lifetimeStats0, lifetimeStats1, lifetimeStats2, lifetimeStats3, lifetimeStats4, " \
+               "attributeList0, attributeList1, attributeList2, attributeList3, attributeList4, attributeList5, teamid, assists, lifetimeAssists, loyaltyBonus, pile, nation, ye_ar, resourceGameYear, cou_nt, untradeableCount) " \
+               "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    # Einfügung der Liste x in die Datenbank
-    for item in x:
-        connection.insert(sql, item)
+        # Einfügung der Liste x in die Datenbank
+        for item in x:
+            connection.insert(sql, item)
+    elif not isDataOK:
+        print("Index Error in database.py. Go ahead..")
+        pass
 
