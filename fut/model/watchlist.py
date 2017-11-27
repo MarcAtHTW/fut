@@ -125,7 +125,7 @@ class Watchlist:
 
 
     def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, count, assetId):
-        """ Sends items to watchlist using min expire time in munites, count of players and assetId.
+        """ Sends items to watchlist using min expire time in minutes, count of players and assetId.
         :type minExpireTimeInMinutes: int
         :type count: int
         :type assetId: int
@@ -138,18 +138,30 @@ class Watchlist:
         minExpireTimeInSeconds = minExpireTimeInMinutes * 60
         itemsWithMinExpireTime = []
 
-        page_size = 48
-        while len(itemsWithMinExpireTime) < count:
-            #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
-            items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, page_size=page_size)
-            self.currentState= State.chooseTrades
-            print(self.currentState)
-            for item in items_resultset:
-                if item['expires'] > minExpireTimeInSeconds:
-                    if count > 0:
-                        itemsWithMinExpireTime.append(item)
-                        count -= 1
-            page_size += 1
+
+        pageSize = 40
+        isLastPageReached = False
+        isResultsetFull = False
+        listTradeIds = []
+
+        self.currentState = State.chooseTrades
+        while isLastPageReached is False and isResultsetFull is False:
+            if len(itemsWithMinExpireTime) < count:
+                #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
+                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, page_size=pageSize)
+                print(self.currentState)
+                print('From Page {}'.format(pageSize))
+                for item in items_resultset:
+                    if item['expires'] > minExpireTimeInSeconds:
+                        if len(itemsWithMinExpireTime) < count and item['tradeId'] not in listTradeIds:
+                            itemsWithMinExpireTime.append(item)
+                            listTradeIds.append(item['tradeId'])
+                pageSize += 1
+                if pageSize == 51:
+                    isLastPageReached = True
+            elif len(itemsWithMinExpireTime) == count:
+                isResultsetFull = True
+
         self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
         self.expire['created']                  = datetime.now()
 
@@ -159,6 +171,7 @@ class Watchlist:
         for item in itemsWithMinExpireTime:
             i += 1
             tradeID = item['tradeId']
+            #print("(Debug: TradeID {} will be added to Watchlist.".format(tradeID))
             self.session.sendToWatchlist(tradeID)
             print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
         self.setExpiretime()

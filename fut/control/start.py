@@ -50,7 +50,7 @@ fut = fut.Core(
 # q = "SELECT * FROM Player"
 
 """Suche"""
-#items = fut.searchAuctions(ctype='player', assetId='50530358', page_size=48)
+#items = fut.searchAuctions(ctype='player', page_size=48)
 # print(items)
 # items = dict()
 
@@ -69,8 +69,8 @@ watchlist = Watchlist(fut)
 #watchlist.fillup(items, 10)
 #watchlist.loadItemsFromLiveWatchlist()
 
-assetId         = 50530358      # Eindeutige KartenID (z.B. Rodriguez in Form)
-minExpireTime   = 1            # Min expiretime in minutes
+assetId         = 190460        # Eindeutige KartenID (z.B. Rodriguez in Form)
+minExpireTime   = 1             # Min expiretime in minutes
 numberOfPlayers = 50            # Number of players to add to watchlist
 
 while True:
