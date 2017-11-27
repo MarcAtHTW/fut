@@ -1,3 +1,4 @@
 requests>=2.2.1
 xmltodict
 pyotp
+bs4
