@@ -1,15 +1,20 @@
 import json
 from datetime import datetime
 from fut.model.enumeration import State
+from fut.model.database import  succesTradesFromWatchlist
+import time
 
 class Watchlist:
 
     tradeIDs = []
     items = []
 
-
-
-    def __init__(self, fut_session):
+    def __init__(self, fut_session, db, assetIds, minExpireTime, numberOfPlayers):
+        self.assetId                    = 0
+        self.assetIds                   = assetIds
+        self.db                         = db
+        self.minExpireTime              = minExpireTime
+        self.numberOfPlayers            = numberOfPlayers
         self.session                    = fut_session
         self.tradepile                  = fut_session.tradepile()
         #self.unassigned                 = fut_session.unassigned()
@@ -18,6 +23,35 @@ class Watchlist:
         self.length                     = len(fut_session.watchlist())
         self.expire                     = {}
         self.currentState               = State.pending
+
+    def startBot(self):
+        while True:
+            for assetId in self.assetIds:
+                self.assetId = assetId
+                print('### Bot started ###')
+                self.printCurrentStateToConsole()
+                """ Clear Watchlist at startup. """
+                self.clear()
+
+                """ Fill up Watchlist """
+                self.sendItemsToWatchlistWithMinExpireTime(self.minExpireTime, self.numberOfPlayers, self.assetId)
+
+                """ Wait expiretime """
+                self.setExpiretime()
+                expireTime = self.getExpiretime()
+                self.setCurrentState(State.wait)
+                currentState = self.getCurrentState()
+                print("Watchlist expires in {} minutes. {}...".format(expireTime / 60, currentState))
+                currentTime = time.strftime("%H:%M:%S")
+                print("Current time: {}".format(currentTime))
+                print("Wait...")
+                time.sleep(self.getExpiretime())
+
+                """ Save Trades """
+                self.setCurrentState(State.saveTrades)
+                self.printCurrentStateToConsole()
+                succesTradesFromWatchlist(self.session, self.db)
+                self.setCurrentState(State.pending)
 
     def fillup(self, resultsetTransfermarketsearch, maxLengthOfWatchlist=50):
         """ Fills up Watchlist with items found at a market search.
@@ -149,10 +183,10 @@ class Watchlist:
             if len(itemsWithMinExpireTime) < count:
                 #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
                 items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, page_size=pageSize)
-                print(self.currentState)
-                print('From Page {}'.format(pageSize))
+               # print(self.currentState)
+                print('{} From Page {}'.format(self.currentState, pageSize))
                 for item in items_resultset:
-                    if item['expires'] > minExpireTimeInSeconds:
+                    if item['expires'] > minExpireTimeInSeconds and item['expires'] < 600 and item['currentBid'] > 0:
                         if len(itemsWithMinExpireTime) < count and item['tradeId'] not in listTradeIds:
                             itemsWithMinExpireTime.append(item)
                             listTradeIds.append(item['tradeId'])
@@ -172,7 +206,11 @@ class Watchlist:
             i += 1
             tradeID = item['tradeId']
             #print("(Debug: TradeID {} will be added to Watchlist.".format(tradeID))
-            self.session.sendToWatchlist(tradeID)
+            try:
+                self.session.sendToWatchlist(tradeID)
+            except Exception as error:
+                print(str(error))
+                self.startBot()
             print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
         self.setExpiretime()
         self.currentState = State.pending

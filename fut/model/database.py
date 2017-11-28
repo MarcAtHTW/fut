@@ -2,7 +2,7 @@ import json
 import pymysql
 import sys
 import fut
-from fut.model.watchlist import  Watchlist
+
 
 
 def executeSqlFromFile(connection, filename):
@@ -173,6 +173,7 @@ def succesTradesFromWatchlist(coreobject, connection):
     attributeList4List.clear()
     attributeList5List.clear()
 
+    isDataOK = False
     for y in coreobject.watchlist():
         #if y["tradeState"] == "closed":
         try:

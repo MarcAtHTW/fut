@@ -1,12 +1,8 @@
 import fut
-import json
-import time
 
-from fut.model import dbConnector as DB, watchlist
-from fut.model.database import loadPlayerDatabase, executeSqlFromFile, succesTradesFromWatchlist
+from fut.model import dbConnector as DB
 from fut.model.watchlist import Watchlist
 from fut.model.pinAutomater import PinAutomater
-from fut.model.enumeration import State
 from fut.model.credentials import Credentials
 
 
@@ -57,7 +53,13 @@ fut = fut.Core(
 # print(len(fut.watchlist()))
 
 """Objekterzeugung Watchlist"""
-watchlist = Watchlist(fut)
+assetIds = [20801, 158023, 167495, 176580, 190871, 188545, 155862, 156353, 167664, 182521, 183277, 193080, 1179, 153079, 173731, 177003, 184941, 192119, 192985, 9014, 41236, 164240, 176635, 178603, 182493, 183907, 184344, 188567, 189509, 194765, 200389, 211110, 238431]
+#assetId         = 0        # Eindeutige KartenID (z.B. Rodriguez in Form)
+minExpireTime   = 2             # Min expiretime in minutes
+numberOfPlayers = 50            # Number of players to add to watchlist
+
+watchlist = Watchlist(fut, db, assetIds, minExpireTime, numberOfPlayers)
+watchlist.startBot()
 #watchlist.loadTradeIdsFromLiveWatchlist()
 
 """Löschen der Watchlist anhand einer manuellen TradeIDListe"""
@@ -69,34 +71,8 @@ watchlist = Watchlist(fut)
 #watchlist.fillup(items, 10)
 #watchlist.loadItemsFromLiveWatchlist()
 
-assetId         = 190460        # Eindeutige KartenID (z.B. Rodriguez in Form)
-minExpireTime   = 1             # Min expiretime in minutes
-numberOfPlayers = 50            # Number of players to add to watchlist
+### old loop - start ###
 
-while True:
-    watchlist.printCurrentStateToConsole()
-    """ Clear Watchlist at startup. """
-    watchlist.clear()
-
-    """ Fill up Wathlist """
-    watchlist.sendItemsToWatchlistWithMinExpireTime(minExpireTime,numberOfPlayers, assetId)
-
-    """ Wait expiretime """
-    watchlist.setExpiretime()
-    expireTime = watchlist.getExpiretime()
-    watchlist.setCurrentState(State.wait)
-    currentState = watchlist.getCurrentState()
-    print("Watchlist expires in {} minutes. {}...".format(expireTime/60, currentState))
-    currentTime = time.strftime("%H:%M:%S")
-    print("Current time: {}".format(currentTime))
-    print("Wait...")
-    time.sleep(watchlist.getExpiretime())
-
-    """ Save Trades """
-    watchlist.setCurrentState(State.saveTrades)
-    watchlist.printCurrentStateToConsole()
-    succesTradesFromWatchlist(watchlist.session, db)
-    watchlist.setCurrentState(State.pending)
 
 
 """" Ende Tests"""
