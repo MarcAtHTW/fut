@@ -315,7 +315,6 @@ def succesTradesFromWatchlist(coreobject, connection):
         for item in x:
             connection.insert(sql, item)
     elif not isDataOK:
-        print("Index Error in database.py. Go ahead..")
         pass
 
 

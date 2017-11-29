@@ -9,11 +9,12 @@ class Watchlist:
     tradeIDs = []
     items = []
 
-    def __init__(self, fut_session, db, assetIds, minExpireTime, numberOfPlayers):
+    def __init__(self, fut_session, db, assetIds, minExpireTime, maxExpireTimeinMinutes, numberOfPlayers):
         self.assetId                    = 0
         self.assetIds                   = assetIds
         self.db                         = db
-        self.minExpireTime              = minExpireTime
+        self.minExpireTimeInMinutes     = minExpireTime
+        self.maxExpireTimeinMinutes     = maxExpireTimeinMinutes
         self.numberOfPlayers            = numberOfPlayers
         self.session                    = fut_session
         self.tradepile                  = fut_session.tradepile()
@@ -23,18 +24,20 @@ class Watchlist:
         self.length                     = len(fut_session.watchlist())
         self.expire                     = {}
         self.currentState               = State.pending
+        self.watchlist                  = fut_session.watchlist()
 
     def startBot(self):
+        print('### Bot started ###')
         while True:
             for assetId in self.assetIds:
+                print('(Debug): Current ressource ID: {}'.format(assetId))
                 self.assetId = assetId
-                print('### Bot started ###')
                 self.printCurrentStateToConsole()
                 """ Clear Watchlist at startup. """
                 self.clear()
 
                 """ Fill up Watchlist """
-                self.sendItemsToWatchlistWithMinExpireTime(self.minExpireTime, self.numberOfPlayers, self.assetId)
+                self.sendItemsToWatchlistWithMinExpireTime(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, self.numberOfPlayers, self.assetId)
 
                 """ Wait expiretime """
                 self.setExpiretime()
@@ -89,13 +92,14 @@ class Watchlist:
         if listTradeIds == None:
             self.loadTradeIdsFromLiveWatchlist()
             lenItemsOnWatchlist = len(self.tradeIDs)
-            print("Deleting %s items from Watchlist." % lenItemsOnWatchlist)
-            i = 0
-            for tradeID in self.tradeIDs:
-                i+=1
-                self.session.watchlistDelete(tradeID)
-                print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist, tradeID))
-            self.tradeIDs = []
+            if lenItemsOnWatchlist > 0:
+                print("Deleting %s items from Watchlist." % lenItemsOnWatchlist)
+                i = 0
+                for tradeID in self.tradeIDs:
+                    i+=1
+                    self.session.watchlistDelete(tradeID)
+                    print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist, tradeID))
+                self.tradeIDs = []
         elif listTradeIds != None:
             lenItemsTradeIdlist = len(self.listTradeIds)
             print("Deleting {} items from Watchlist.".format(lenItemsTradeIdlist))
@@ -158,42 +162,44 @@ class Watchlist:
         return playerWithMaxExpireTime_ID, playerWithMaxExpireTime_TradeID
 
 
-    def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, count, assetId):
+    def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, numberOfPlayers, assetId):
+        #ToDo: Methode verschlanken!
         """ Sends items to watchlist using min expire time in minutes, count of players and assetId.
         :type minExpireTimeInMinutes: int
-        :type count: int
+        :type numberOfPlayers: int
         :type assetId: int
         :param minExpireTimeInMinutes: Minimum expiretime in minutes.
-        :param count: Count of items.
+        :param numberOfPlayers: Count of items.
         :param assetId: Item asset-id.
         """
         self.currentState = State.search
         print(self.currentState)
         minExpireTimeInSeconds = minExpireTimeInMinutes * 60
+        maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
         itemsWithMinExpireTime = []
 
-
-        pageSize = 40
+        currentPage = 40
         isLastPageReached = False
         isResultsetFull = False
         listTradeIds = []
 
         self.currentState = State.chooseTrades
         while isLastPageReached is False and isResultsetFull is False:
-            if len(itemsWithMinExpireTime) < count:
+            if len(itemsWithMinExpireTime) < numberOfPlayers:
                 #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
-                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, page_size=pageSize)
+                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size=50 )
                # print(self.currentState)
-                print('{} From Page {}'.format(self.currentState, pageSize))
+                print('{} From Page {}'.format(self.currentState, currentPage))
                 for item in items_resultset:
-                    if item['expires'] > minExpireTimeInSeconds and item['expires'] < 600 and item['currentBid'] > 0:
-                        if len(itemsWithMinExpireTime) < count and item['tradeId'] not in listTradeIds:
+                    # Choose trades with min expire time, max expire time hardcoded = 10 Minutes = 600 Seconds and has a (not active: current bid.
+                    if item['expires'] > minExpireTimeInSeconds and item['expires'] < maxExpireTimeInSeconds:
+                        if len(itemsWithMinExpireTime) < numberOfPlayers and item['tradeId'] not in listTradeIds:
                             itemsWithMinExpireTime.append(item)
                             listTradeIds.append(item['tradeId'])
-                pageSize += 1
-                if pageSize == 51:
+                currentPage += 1
+                if currentPage == 50:
                     isLastPageReached = True
-            elif len(itemsWithMinExpireTime) == count:
+            elif len(itemsWithMinExpireTime) == numberOfPlayers:
                 isResultsetFull = True
 
         self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
@@ -209,7 +215,7 @@ class Watchlist:
             try:
                 self.session.sendToWatchlist(tradeID)
             except Exception as error:
-                print(str(error))
+                self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
                 self.startBot()
             print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
         self.setExpiretime()
