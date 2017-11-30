@@ -25,6 +25,7 @@ class Watchlist:
         self.expire                     = {}
         self.currentState               = State.pending
         self.watchlist                  = fut_session.watchlist()
+        self.isExpired                  = False
 
     def startBot(self):
         print('### Bot started ###')
@@ -43,13 +44,11 @@ class Watchlist:
                 self.setExpiretime()
                 expireTime = self.getExpiretime()
                 self.setCurrentState(State.wait)
-                currentState = self.getCurrentState()
-                print("Watchlist expires in {} minutes. {}...".format(expireTime / 60, currentState))
+                print("Watchlist expires in {} minutes.".format(expireTime / 60,))
                 currentTime = time.strftime("%H:%M:%S")
                 print("Current time: {}".format(currentTime))
-                print("Wait...")
-                time.sleep(self.getExpiretime())
-
+                self.waitExpiretime()
+                self.isExpired = False
                 """ Save Trades """
                 self.setCurrentState(State.saveTrades)
                 self.printCurrentStateToConsole()
@@ -178,7 +177,7 @@ class Watchlist:
         maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
         itemsWithMinExpireTime = []
 
-        currentPage = 40
+        currentPage = 1
         isLastPageReached = False
         isResultsetFull = False
         listTradeIds = []
@@ -187,7 +186,7 @@ class Watchlist:
         while isLastPageReached is False and isResultsetFull is False:
             if len(itemsWithMinExpireTime) < numberOfPlayers:
                 #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
-                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size=50 )
+                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage )
                # print(self.currentState)
                 print('{} From Page {}'.format(self.currentState, currentPage))
                 for item in items_resultset:
@@ -197,7 +196,7 @@ class Watchlist:
                             itemsWithMinExpireTime.append(item)
                             listTradeIds.append(item['tradeId'])
                 currentPage += 1
-                if currentPage == 50:
+                if currentPage == 3:
                     isLastPageReached = True
             elif len(itemsWithMinExpireTime) == numberOfPlayers:
                 isResultsetFull = True
@@ -215,10 +214,9 @@ class Watchlist:
             try:
                 self.session.sendToWatchlist(tradeID)
             except Exception as error:
-                self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
+                #self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
                 self.startBot()
             print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
-        self.setExpiretime()
         self.currentState = State.pending
         print(self.currentState)
 
@@ -226,7 +224,7 @@ class Watchlist:
     def setExpiretime(self):
         """ Sets the max Expiretime of current watchlist items getting from current session."""
         itemsOfWatchlist    = self.session.watchlist()
-        maxExpiretime       = 0
+        maxExpiretime       = -1
 
         for item in itemsOfWatchlist:
             if item['expires'] > maxExpiretime:
@@ -241,15 +239,39 @@ class Watchlist:
         return self.expire['expires']
 
     def setCurrentState(self, state):
+        """ Sets current watchlist state.
+        :type state: State
+        :param state: Current state. E.g.: pending, delete, choose...
+        """
         if isinstance(state, State):
             self.currentState = state
 
     def getCurrentState(self):
+        """ Sets current watchlist state
+        :return: Current state. E.g.: pending, delete, choose...
+        """
         return self.currentState
 
     def printCurrentStateToConsole(self):
+        """ Prints current state to console.
+        """
         currentState = self.currentState
         print(currentState)
+
+    def waitExpiretime(self):
+        """ Waits expiretime. Checks current state and waits till items are expired.
+        """
+        self.setExpiretime()
+        expiretime = self.getExpiretime()
+        if expiretime < 0:
+            self.isExpired = True
+        if self.isExpired == False:
+            print('New bid! Waiting.. {} seconds.'.format(expiretime))
+            time.sleep(expiretime)
+        while self.isExpired == False:
+            self.waitExpiretime()
+
+
 
 """
 >>> session.sendToTradepile(item_id)                         # add card to tradepile

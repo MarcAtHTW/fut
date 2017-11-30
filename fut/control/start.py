@@ -57,7 +57,7 @@ assetIds = [20801, 158023, 167495, 176580, 190871, 188545, 155862, 156353, 16766
 #assetId         = 0        # Eindeutige KartenID (z.B. Rodriguez in Form)
 minExpireTimeInMinutes   = 2             # Min expiretime in minutes
 maxExpireTimeInMinutes   = 5            # Max expiretime in Minutes
-numberOfPlayers = 50            # Number of players to add to watchlist
+numberOfPlayers = 50            # Max Number of players on watchlist
 
 watchlist = Watchlist(fut, db, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, numberOfPlayers)
 watchlist.startBot()
