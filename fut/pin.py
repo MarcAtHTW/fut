@@ -14,10 +14,9 @@ import json
 from random import random
 from datetime import datetime, timedelta
 
-from fut.config import headers
-from fut.urls import pin_url, v
-from fut.exceptions import FutError
-
+from .config import headers
+from .urls import pin_url
+from .exceptions import FutError
 
 class Pin(object):
     def __init__(self, sku='FIFA18WEB', sid='', nucleus_id=0, persona_id='', dob=False, platform=False):
@@ -93,7 +92,7 @@ class Pin(object):
                 "tidt": self.tidt,
                 "tid": self.sku,
                 "rel": self.rel,
-                "v": v,
+                #"v": v,
                 "ts_post": self.__ts(delay=0.25 + random() / 20),
                 "sid": self.sid,
                 "gid": self.gid,  # convert to int?

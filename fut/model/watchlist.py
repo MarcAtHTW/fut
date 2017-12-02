@@ -196,7 +196,7 @@ class Watchlist:
                             itemsWithMinExpireTime.append(item)
                             listTradeIds.append(item['tradeId'])
                 currentPage += 1
-                if currentPage == 3:
+                if currentPage == 6:
                     isLastPageReached = True
             elif len(itemsWithMinExpireTime) == numberOfPlayers:
                 isResultsetFull = True

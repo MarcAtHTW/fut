@@ -4,6 +4,8 @@ from fut.model import dbConnector as DB
 from fut.model.watchlist import Watchlist
 from fut.model.pinAutomater import PinAutomater
 from fut.model.credentials import Credentials
+from random import shuffle
+
 
 
 credentials = Credentials()
@@ -27,7 +29,7 @@ fut = fut.Core(
     credentials.ea['mail'],
     credentials.ea['pass'],
     credentials.ea['secr'],
-    code=pinAutomater,
+    #code=pinAutomater,
     debug=True
 )
 
@@ -54,10 +56,11 @@ fut = fut.Core(
 
 """Objekterzeugung Watchlist"""
 assetIds = [20801, 158023, 167495, 176580, 190871, 188545, 155862, 156353, 167664, 182521, 183277, 193080, 1179, 153079, 173731, 177003, 184941, 192119, 192985, 9014, 41236, 164240, 176635, 178603, 182493, 183907, 184344, 188567, 189509, 194765, 200389, 211110, 238431]
+shuffle(assetIds)
 #assetId         = 0        # Eindeutige KartenID (z.B. Rodriguez in Form)
 minExpireTimeInMinutes   = 2             # Min expiretime in minutes
 maxExpireTimeInMinutes   = 5            # Max expiretime in Minutes
-numberOfPlayers = 50            # Max Number of players on watchlist
+numberOfPlayers = 50            # Number of players to add to watchlist
 
 watchlist = Watchlist(fut, db, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, numberOfPlayers)
 watchlist.startBot()

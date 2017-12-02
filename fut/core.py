@@ -81,7 +81,7 @@ def itemParse(item_data, full=True):
         'tradeState':        item_data.get('tradeState'),
         'bidState':          item_data.get('bidState'),
         'startingBid':       item_data.get('startingBid'),
-        'id':                item_data['itemData']['id'],
+        'id':                item_data.get('itemData', {'id': None})['id'] or item_data.get('item', {'id': None})['id'],
         'offers':            item_data.get('offers'),
         'currentBid':        item_data.get('currentBid'),
         'expires':           item_data.get('expires'),  # seconds left
@@ -89,6 +89,8 @@ def itemParse(item_data, full=True):
         'sellerId':          item_data.get('sellerId'),
         'sellerName':        item_data.get('sellerName'),
         'watched':           item_data.get('watched'),
+        'resourceId': item_data.get('resourceId'),      # consumables only?
+        'discardValue': item_data.get('discardValue'),  # consumables only?
     }
     if full:
         return_data.update({
