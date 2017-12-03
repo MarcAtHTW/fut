@@ -240,9 +240,10 @@ class Watchlist:
             tradeID = item['tradeId']
             #print("(Debug: TradeID {} will be added to Watchlist.".format(tradeID))
             try:
-                self.session.sendToWatchlist(tradeID)
+                self.session.sendToWatchlist(int(tradeID))
             except Exception as error:
                 #self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
+                print(error)
                 self.startBot()
             print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
         self.currentState = State.pending

@@ -11,29 +11,32 @@ This module implements the fut's pinEvents methods.
 import requests
 import re
 import json
+import time
 from random import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from .config import headers
-from .urls import pin_url
-from .exceptions import FutError
+from fut.config import headers
+from fut.urls import pin_url
+from fut.exceptions import FutError
+
 
 class Pin(object):
-    def __init__(self, sku='FIFA18WEB', sid='', nucleus_id=0, persona_id='', dob=False, platform=False):
-        self.sku = sku
+    def __init__(self, sku=None, sid='', nucleus_id=0, persona_id='', dob=False, platform=False):
         self.sid = sid
         self.nucleus_id = nucleus_id
         self.persona_id = persona_id
         self.dob = dob
         self.platform = platform
         rc = requests.get('https://www.easports.com/fifa/ultimate-team/web-app/js/compiled_1.js').text
-        self.taxv = re.search('PinManager.TAXONOMY_VERSION=([0-9\.]+?)', rc).group(1)
+        self.sku = sku or re.search('enums.SKU.FUT="(.+?)"', rc).group(1)
+        self.taxv = re.search('PinManager.TAXONOMY_VERSION=([0-9\.]+)', rc).group(1)
         self.tidt = re.search('PinManager.TITLE_ID_TYPE="(.+?)"', rc).group(1)
         self.rel = re.search('rel:"(.+?)"', rc).group(1)
         self.gid = re.search('gid:([0-9]+?)', rc).group(1)
         self.plat = re.search('plat:"(.+?)"', rc).group(1)
         self.et = re.search('et:"(.+?)"', rc).group(1)
         self.pidt = re.search('pidt:"(.+?)"', rc).group(1)
+        self.v = re.search('APP_VERSION="([0-9\.]+)"', rc).group(1)
 
         self.r = requests.Session()
         self.r.headers = headers
@@ -46,12 +49,12 @@ class Pin(object):
         self.custom = {"networkAccess": "W"}  # wifi?
         # TODO?: full boot process when there is no session (boot start)
 
-        self.custom['service_plat'] = platform
-        self.s = 4  # event id  |  3 before "was sent" without session/persona/nucleus id so we can probably omit
+        self.custom['service_plat'] = platform[:3]
+        self.s = 2  # event id  |  before "was sent" without session/persona/nucleus id so we can probably omit
 
-    def __ts(self, delay=0):
+    def __ts(self):
         # TODO: add ability to random something
-        ts = datetime.now() + timedelta(seconds=delay)
+        ts = datetime.utcnow()
         ts = ts.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         return ts
 
@@ -61,10 +64,8 @@ class Pin(object):
                          "pid": self.persona_id,
                          "pidm": {"nucleus": self.nucleus_id},
                          "didm": {"uuid": "0"},  # what is it?
-                         "ts_event": self.__ts(delay=-0.25),
-                         "en": en},
-                'userid': self.persona_id,  # not needed before session?
-                'type': 'utas'}  # not needed before session?
+                         "ts_event": self.__ts(),
+                         "en": en}}
         if self.dob:  # date of birth yyyy-mm
             data['core']['dob'] = self.dob
         if pgid:
@@ -80,20 +81,29 @@ class Pin(object):
         if end_reason:
             data['end_reason'] = end_reason
 
-        if en == 'page_view':
+        if en == 'login':
+            data['type'] = 'utas'
+            data['userid'] = self.persona_id
+        elif en == 'page_view':
             data['type'] = 'menu'
+        elif en == 'error':
+            data['server_type'] = 'utas'
+            data['errid'] = 'server_error'
+            data['type'] = 'disconnect'
+            data['sid'] = self.sid
 
         self.s += 1  # bump event id
 
         return data
 
-    def send(self, events):
+    def send(self, events, fast=False):
+        time.sleep(0.5 + random() / 50)
         data = {"taxv": self.taxv,  # convert to float?
                 "tidt": self.tidt,
                 "tid": self.sku,
                 "rel": self.rel,
-                #"v": v,
-                "ts_post": self.__ts(delay=0.25 + random() / 20),
+                "v": self.v,
+                "ts_post": self.__ts(),
                 "sid": self.sid,
                 "gid": self.gid,  # convert to int?
                 "plat": self.plat,
@@ -103,7 +113,8 @@ class Pin(object):
                 "custom": self.custom,
                 "events": events}
         # print(data)  # DEBUG
-        self.r.options(pin_url)
+        if not fast:
+            self.r.options(pin_url)
         rc = self.r.post(pin_url, data=json.dumps(data)).json()
         if rc['status'] != 'ok':
             raise FutError('PinEvent is NOT OK, probably they changed something.')

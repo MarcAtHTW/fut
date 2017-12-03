@@ -2,3 +2,4 @@ requests>=2.2.1
 xmltodict
 pyotp
 bs4
+python-anticaptcha==0.1.1
