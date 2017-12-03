@@ -35,6 +35,25 @@ def executeSqlFromFile(connection, filename):
     return
 
 
+def readPlayers(connection, filename):
+    """
+    reads in the player lists from fut_main_playerstowatch and fut_special_playerstowatch
+    :param connection: db connection
+    :param filename: sql file
+    :return: list of players
+    """
+    # Open and read the file as a single buffer
+    fd = open(filename, 'r')
+    sqlfile = fd.read()
+    fd.close()
+    tmp_playersList = connection.query(sqlfile)
+    idList = []
+    for item in tmp_playersList:
+        for k, v in item.items():
+            idList.append(v)
+    return idList
+
+
 def loadPlayerDatabase(coreobject, connection):
     """    Lädt alle FUT-Spieler und schreibt sie in die Tabelle 'fut_players' in der Datenbank
 

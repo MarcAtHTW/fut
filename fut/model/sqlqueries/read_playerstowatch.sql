@@ -1,0 +1,5 @@
+Select ressourceId
+From fut_main_playerstowatch
+UNION
+Select ressourceId
+From fut_special_playerstowatch

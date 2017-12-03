@@ -160,6 +160,17 @@ class Watchlist:
 
         return playerWithMaxExpireTime_ID, playerWithMaxExpireTime_TradeID
 
+    def getIdsFromPage(self, page):
+        """ Gets all ID's from Current Resultset.
+        :param page: Pages (Resultset) of transfermarketsearch.
+        :type page: dict
+        :return:
+        """
+        listIds = []
+        for item in page:
+            listIds.append(item['id'])
+        return listIds
+
 
     def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, numberOfPlayers, assetId):
         #ToDo: Methode verschlanken!
@@ -181,12 +192,29 @@ class Watchlist:
         isLastPageReached = False
         isResultsetFull = False
         listTradeIds = []
+        resultsetCurrentPage = {}
+        listIdsCurrentPage = []
+        listIdsNextPage = []
+        diff = 0
 
         self.currentState = State.chooseTrades
         while isLastPageReached is False and isResultsetFull is False:
             if len(itemsWithMinExpireTime) < numberOfPlayers:
                 #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
-                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage )
+                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size= 15 )
+                listIdsNextPage = self.getIdsFromPage(items_resultset)
+                if len(listIdsCurrentPage) > 0:
+                    diff = set(listIdsCurrentPage) - set(listIdsNextPage)
+                if len(listIdsCurrentPage) == 0:
+                    resultsetCurrentPage = items_resultset
+                    listIdsCurrentPage = self.getIdsFromPage(resultsetCurrentPage)
+                    isNextPageFilledWithNewItems = True
+                elif len(diff) > 5:
+                    isNextPageFilledWithNewItems = True
+                    listIdsCurrentPage = listIdsNextPage
+                elif len(diff) <= 5:
+                    isNextPageFilledWithNewItems = False
+
                # print(self.currentState)
                 print('{} From Page {}'.format(self.currentState, currentPage))
                 for item in items_resultset:
@@ -196,7 +224,7 @@ class Watchlist:
                             itemsWithMinExpireTime.append(item)
                             listTradeIds.append(item['tradeId'])
                 currentPage += 1
-                if currentPage == 6:
+                if isNextPageFilledWithNewItems == False:
                     isLastPageReached = True
             elif len(itemsWithMinExpireTime) == numberOfPlayers:
                 isResultsetFull = True
