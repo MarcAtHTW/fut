@@ -44,6 +44,7 @@ fut = fut.Core(
 """Erfolgreiche Trades aus Watchlist in DB speichern"""
 # succesTradesFromWatchlist(fut,db)
 
+"""commit test xoxo"""
 
 """Test Query"""
 # q = "SELECT * FROM Player"
