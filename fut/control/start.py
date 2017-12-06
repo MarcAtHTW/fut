@@ -7,7 +7,6 @@ from fut.model.credentials import Credentials
 from fut.model.database import readPlayers
 from random import shuffle
 
-# testinger
 
 credentials = Credentials()
 
