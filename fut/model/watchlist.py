@@ -33,27 +33,22 @@ class Watchlist:
             for assetId in self.assetIds:
                 print('(Debug): Current ressource ID: {}'.format(assetId))
                 self.assetId = assetId
-                self.printCurrentStateToConsole()
                 """ Clear Watchlist at startup. """
                 self.clear()
-
                 """ Fill up Watchlist """
-                self.sendItemsToWatchlistWithMinExpireTime(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, self.numberOfPlayers, self.assetId)
-
+                self.sendItemsToWatchlist(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, self.numberOfPlayers, self.assetId)
                 """ Wait expiretime """
                 self.setExpiretime()
                 expireTime = self.getExpiretime()
-                self.setCurrentState(State.wait)
-                print("Watchlist expires in {} minutes.".format(expireTime / 60,))
-                currentTime = time.strftime("%H:%M:%S")
-                print("Current time: {}".format(currentTime))
+                if expireTime!= -1:
+                    print("Watchlist expires in {} minutes.".format(expireTime / 60,))
+                    print("Current time: {}".format(time.strftime("%H:%M:%S")))
                 self.waitExpiretime()
                 self.isExpired = False
                 """ Save Trades """
-                self.setCurrentState(State.saveTrades)
-                self.printCurrentStateToConsole()
+                self.currentState = State.saveTrades
+                print(self.currentState)
                 succesTradesFromWatchlist(self.session, self.db)
-                self.setCurrentState(State.pending)
 
     def fillup(self, resultsetTransfermarketsearch, maxLengthOfWatchlist=50):
         """ Fills up Watchlist with items found at a market search.
@@ -171,37 +166,32 @@ class Watchlist:
             listIds.append(item['id'])
         return listIds
 
+    def search(self, numberOfPlayers, assetId, minExpireTimeInSeconds, maxExpireTimeInSeconds):
+        #ToDo: Methode verschlanken.
+        """ Searchs for Players on transfer market.
 
-    def sendItemsToWatchlistWithMinExpireTime(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, numberOfPlayers, assetId):
-        #ToDo: Methode verschlanken!
-        """ Sends items to watchlist using min expire time in minutes, count of players and assetId.
-        :type minExpireTimeInMinutes: int
-        :type numberOfPlayers: int
-        :type assetId: int
-        :param minExpireTimeInMinutes: Minimum expiretime in minutes.
-        :param numberOfPlayers: Count of items.
-        :param assetId: Item asset-id.
+        :param numberOfPlayers:
+        :param assetId:
+        :param minExpireTimeInSeconds:
+        :param maxExpireTimeInSeconds:
+        :return:
         """
-        self.currentState = State.search
-        print(self.currentState)
-        minExpireTimeInSeconds = minExpireTimeInMinutes * 60
-        maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
-        itemsWithMinExpireTime = []
-
         currentPage = 1
+        diff = 0
         isLastPageReached = False
         isResultsetFull = False
         listTradeIds = []
-        resultsetCurrentPage = {}
         listIdsCurrentPage = []
-        listIdsNextPage = []
-        diff = 0
+        itemsWithMinExpireTime = []
+        listTradeIds = []
 
-        self.currentState = State.chooseTrades
+        self.currentState = State.search
+        print(self.currentState)
         while isLastPageReached is False and isResultsetFull is False:
             if len(itemsWithMinExpireTime) < numberOfPlayers:
-                #items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
-                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size= 15 )
+                # items_resultset = self.session.searchAuctions(ctype='player', page_size=page_size)
+                items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage,
+                                                              page_size=15)
                 listIdsNextPage = self.getIdsFromPage(items_resultset)
                 if len(listIdsCurrentPage) > 0:
                     diff = set(listIdsCurrentPage) - set(listIdsNextPage)
@@ -215,7 +205,8 @@ class Watchlist:
                 elif len(diff) <= 5:
                     isNextPageFilledWithNewItems = False
 
-               # print(self.currentState)
+                self.currentState = State.chooseTrades
+                print(self.currentState)
                 print('{} From Page {}'.format(self.currentState, currentPage))
                 for item in items_resultset:
                     # Choose trades with min expire time, max expire time hardcoded = 10 Minutes = 600 Seconds and has a (not active: current bid.
@@ -229,29 +220,47 @@ class Watchlist:
             elif len(itemsWithMinExpireTime) == numberOfPlayers:
                 isResultsetFull = True
 
-        self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
-        self.expire['created']                  = datetime.now()
+        return itemsWithMinExpireTime, listTradeIds
 
-        print("Sending {} items to watchlist.".format(len(itemsWithMinExpireTime)))
-        i = 0
-        lenItemsWithMinExpireTime = len(itemsWithMinExpireTime)
-        for item in itemsWithMinExpireTime:
-            i += 1
-            tradeID = item['tradeId']
-            #print("(Debug: TradeID {} will be added to Watchlist.".format(tradeID))
-            try:
-                self.session.sendToWatchlist(int(tradeID))
-            except Exception as error:
-                #self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
-                print(error)
-                self.startBot()
-            print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
-        self.currentState = State.pending
-        print(self.currentState)
+    def sendItemsToWatchlist(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, numberOfPlayers, assetId):
+            """ Sends items to watchlist using min expire time in minutes, count of players and assetId.
+            :type minExpireTimeInMinutes: int
+            :type numberOfPlayers: int
+            :type assetId: int
+            :param minExpireTimeInMinutes: Minimum expiretime in minutes.
+            :param numberOfPlayers: Count of items.
+            :param assetId: Item asset-id.
+            """
+            minExpireTimeInSeconds = minExpireTimeInMinutes * 60
+            maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
+
+            itemsWithMinExpireTime, listTradeIds = self.search(numberOfPlayers, assetId, minExpireTimeInSeconds, maxExpireTimeInSeconds)
+
+            self.expire['minExpireTimeInMinutes']   = minExpireTimeInMinutes
+            self.expire['created']                  = datetime.now()
+
+            self.currentState = State.watchTrades
+            print(self.currentState)
+            print("Sending {} items to watchlist.".format(len(itemsWithMinExpireTime)))
+            i = 0
+            lenItemsWithMinExpireTime = len(itemsWithMinExpireTime)
+            for item in itemsWithMinExpireTime:
+                i += 1
+                tradeID = item['tradeId']
+                #print("(Debug: TradeID {} will be added to Watchlist.".format(tradeID))
+                try:
+                    self.session.sendToWatchlist(int(tradeID))
+                except Exception as error:
+                    #self.session.logger("Houston, we have a %s", "bit of a problem", exc_info=1)
+                    print(error)
+                    self.startBot()
+                print("({}/{}) Player with TradeID {} added to Watchlist.".format(i, lenItemsWithMinExpireTime, tradeID))
 
 
     def setExpiretime(self):
         """ Sets the max Expiretime of current watchlist items getting from current session."""
+        self.currentState = State.wait
+        print(self.currentState)
         itemsOfWatchlist    = self.session.watchlist()
         maxExpiretime       = -1
 
