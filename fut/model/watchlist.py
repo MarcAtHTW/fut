@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from fut.model.enumeration import State
-from fut.model.database import  succesTradesFromWatchlist
+from fut.model.database import succesTradesFromWatchlist
 import time
 
 class Watchlist:

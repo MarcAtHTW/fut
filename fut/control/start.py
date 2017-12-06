@@ -2,6 +2,7 @@ import fut
 
 from fut.model import dbConnector as DB
 from fut.model.watchlist import Watchlist
+from fut.model.tradeSearcher import TradeSearcher
 from fut.model.pinAutomater import PinAutomater
 from fut.model.credentials import Credentials
 from fut.model.database import readPlayers
@@ -52,8 +53,11 @@ minExpireTimeInMinutes   = 2             # Min expiretime in minutes
 maxExpireTimeInMinutes   = 5            # Max expiretime in Minutes
 numberOfPlayers = 50            # Number of players to add to watchlist
 
-watchlist = Watchlist(fut, db, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, numberOfPlayers)
-watchlist.startBot()
-#watchlist.loadTradeIdsFromLiveWatchlist()
+# watchlist = Watchlist(fut, db, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, numberOfPlayers)
+# watchlist.startBot()
+# watchlist.loadTradeIdsFromLiveWatchlist()
+
+tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
+tradeSearcher.startTradeSearcher()
 
 print('start.py Done')
