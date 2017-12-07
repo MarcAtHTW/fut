@@ -57,7 +57,9 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.startBot()
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
-tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
-tradeSearcher.startTradeSearcher()
+# tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
+# tradeSearcher.startTradeSearcher()
+
+# print(fut.searchAuctions(ctype='player', assetId='176580', start=1, page_size=15))
 
 print('start.py Done')
