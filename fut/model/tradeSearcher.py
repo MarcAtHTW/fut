@@ -21,12 +21,12 @@ class TradeSearcher:
 
     def startTradeSearcher(self):
         print('### TradeSearcher started ###')
+        """ Clear Watchlist at startup. """
+        # self.clear()
         while True:
             for assetId in self.assetIds:
                 print('(Debug): Current ressource ID: {}'.format(assetId))
                 self.assetId = assetId
-                """ Clear Watchlist at startup. """
-                self.clear()
                 """ Search Trades for current assetId"""
                 self.searchAsset(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, assetId)
 
@@ -45,49 +45,26 @@ class TradeSearcher:
         minExpireTimeInSeconds = minExpireTimeInMinutes * 60
         maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
         currentPage = 1
+        tradeCounter = 0
         noNewTradeCounter = 0
-        listIdsCurrentPage = []
-        listIdsPreviousPage = []
-        isNextPageFilledWithNewItems = False
-        isLastPageReached = False
-        tradeFound = False
 
-        while isLastPageReached is False and noNewTradeCounter < 3:
-            self.currentState = State.search
-            items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage,
-                                                          page_size=25)
-            listIdsNextPage = self.getIdsFromPage(items_resultset)
-            if len(listIdsPreviousPage) > 0:
-                diff = set(listIdsCurrentPage) - set(listIdsPreviousPage)
-                # print(listIdsPreviousPage)
-                # print(listIdsCurrentPage)
-                # print(diff)
-            if len(listIdsPreviousPage) == 0:
-                resultsetPreviousPage = items_resultset
-                listIdsPreviousPage = self.getIdsFromPage(resultsetPreviousPage)
-                isNextPageFilledWithNewItems = True
-            elif len(diff) > 0:
-                isNextPageFilledWithNewItems = True
-                listIdsPreviousPage = listIdsCurrentPage
-            elif len(diff) == 0:
-                isNextPageFilledWithNewItems = False
+        self.currentState = State.search
+        items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size=25)
 
-            print('{} From Page {}'.format(self.currentState, currentPage))
-            self.currentState = State.chooseTrades
-            for item in items_resultset:
-                if item['expires'] > minExpireTimeInSeconds and item['expires'] < maxExpireTimeInSeconds:
-                    self.saveToWatchlist(item['tradeId'])
-                    tradeFound = True
-                else:
-                    tradeFound = False
-            if tradeFound == True:
-                noNewTradeCounter = 0
+        print('{} From Page {}'.format(self.currentState, currentPage))
+        self.currentState = State.chooseTrades
+        for item in items_resultset:
+            if item['expires'] > minExpireTimeInSeconds and item[
+                'expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
+                self.saveToWatchlist(item['tradeId'])
+                tradeCounter += 1
             else:
                 noNewTradeCounter += 1
-                print('noNewTradeCounter: ', noNewTradeCounter)
-            currentPage += 1
-            if isNextPageFilledWithNewItems == False:
-                isLastPageReached = True
+            if tradeCounter >= 5 or noNewTradeCounter >= 10:
+                break
+        print('tradeCounter: ', tradeCounter)
+        print('noNewTradeCounter: ', noNewTradeCounter)
+
 
     def getIdsFromPage(self, page):
         """ Gets all ID's from Current Resultset.
@@ -107,19 +84,22 @@ class TradeSearcher:
         self.length = len(self.session.watchlist())
         self.currentState = State.watchTrades
 
-        while True:
-            self.loadTradeIdsFromLiveWatchlist()
-            if tradeId not in self.tradeIDs:
-                if self.length < self.watchlistSize:
-                    try:
-                        self.session.sendToWatchlist(int(tradeId))
-                    except Exception as error:
-                        print(error)
-                        self.startTradeSearcher()
+        print('trades on watchlist: ', self.length)
+
+        self.loadTradeIdsFromLiveWatchlist()
+        while tradeId not in self.tradeIDs:
+            if self.length < self.watchlistSize:
+                try:
+                    self.session.sendToWatchlist(int(tradeId))
                     print("Player with TradeID {} added to Watchlist.".format(tradeId))
-                    break
+                except Exception as error:
+                    print(error)
+                    self.startTradeSearcher()
+                break
+            else:
                 print('No free slot on Watchlist. Waiting for 2 sec.')
                 time.sleep(2)
+                self.length = len(self.session.watchlist())
 
     def loadTradeIdsFromLiveWatchlist(self):
         """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
