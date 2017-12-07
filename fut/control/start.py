@@ -1,12 +1,15 @@
 import fut
+import threading
 
 from fut.model import dbConnector as DB
 from fut.model.watchlist import Watchlist
 from fut.model.tradeSearcher import TradeSearcher
+from fut.model.tradeChecker import TradeChecker
 from fut.model.pinAutomater import PinAutomater
 from fut.model.credentials import Credentials
 from fut.model.database import readPlayers
 from random import shuffle
+
 
 
 
@@ -57,9 +60,23 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.startBot()
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
-# tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
-# tradeSearcher.startTradeSearcher()
+""" Objekterzeugung tradeSearcher und tradeChecker """
+tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
+tradeChecker = TradeChecker(fut, db)
 
-# print(fut.searchAuctions(ctype='player', assetId='176580', start=1, page_size=15))
+""" Thread Erzeugung """
+tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
+tChecker = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
+
+""" Start der Threads """
+tSearcher.start()
+tChecker.start()
+
+# print(threading.activeCount())
+# print(tSearcher.isAlive())
+# print(tChecker.isAlive())
+
+# tradeSearcher.startTradeSearcher()
+# tradeChecker.startTradeChecker()
 
 print('start.py Done')
