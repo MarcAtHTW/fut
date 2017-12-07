@@ -13,10 +13,10 @@ class Database:
         try:
             if var != None:
                 cursor.execute(query, var)
-                print("Daten eingefuegt")
+                # print("Daten eingefuegt")
             else:
                 result = cursor.execute(query)
-                print("Daten eingefuegt")
+                # print("Daten eingefuegt")
             self.connection.commit()
         except (MySQLdb.Error, MySQLdb.Warning) as err3:
             print(err3)
