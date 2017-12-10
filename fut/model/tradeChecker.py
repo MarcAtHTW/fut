@@ -19,22 +19,29 @@ class TradeChecker:
         print('### TradeChecker started ###')
 
         while anErrorIsReached is False:
-            lengthWatchlist = len(self.session.watchlist())
+            try:
+                lengthWatchlist = len(self.session.watchlist())
+            except Exception as error:
+                print('{Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
             # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
             if lengthWatchlist == 0:
                 print('Kein Item auf der Watchlist, Sleep eine Minute')
                 time.sleep(60)
             else:
-                itemOfWatchlist = self.session.watchlist()[0]
+                try:
+                    itemOfWatchlist = self.session.watchlist()[0]
 
-                if itemOfWatchlist['expires'] != -1:
-                    print('Sleep expireTime: '+ str(itemOfWatchlist['expires']))
-                    time.sleep(itemOfWatchlist['expires'])
+                    if itemOfWatchlist['expires'] != -1:
+                        print('Sleep expireTime: ' + str(itemOfWatchlist['expires']))
+                        time.sleep(itemOfWatchlist['expires'])
 
-                elif itemOfWatchlist['expires'] == -1:
-                    print('Datensatz zur DB senden')
-                    self.session.watchlistDelete(itemOfWatchlist['tradeId'])
-                    self.saveToDB(itemOfWatchlist)
+                    elif itemOfWatchlist['expires'] == -1:
+                        print('Datensatz zur DB senden')
+                        self.session.watchlistDelete(itemOfWatchlist['tradeId'])
+                        self.saveToDB(itemOfWatchlist)
+                except Exception as error:
+                    print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)
+
 
 
 # SafeToDB, Daten des Trades abgreifen und in die Datenbank speichern

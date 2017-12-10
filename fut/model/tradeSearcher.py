@@ -16,7 +16,6 @@ class TradeSearcher:
         self.tradeIDs = []
         self.currentState = State.pending
         self.watchlist = fut_session.watchlist()
-        # numberOfPlayers Attribut evtl. benötigt, alternativ könnte es agil zur Laufzeit abgefragt werden: session.wathlist_size
         self.numberOfPlayers = 50
 
     def startTradeSearcher(self):
@@ -49,7 +48,11 @@ class TradeSearcher:
         noNewTradeCounter = 0
 
         self.currentState = State.search
-        items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage, page_size=25)
+        try:
+            items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage,
+                                                          page_size=25)
+        except Exception as error:
+            print('{Debug} An error in the tradeSearcher has occurred: search failed: ', error)
 
         print('{} From Page {}'.format(self.currentState, currentPage))
         self.currentState = State.chooseTrades
@@ -93,8 +96,8 @@ class TradeSearcher:
                     self.session.sendToWatchlist(int(tradeId))
                     print("Player with TradeID {} added to Watchlist.".format(tradeId))
                 except Exception as error:
-                    print(error)
-                    self.startTradeSearcher()
+                    print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)
+                    # self.startTradeSearcher()
                 break
             else:
                 print('No free slot on Watchlist. Waiting for 2 sec.')
