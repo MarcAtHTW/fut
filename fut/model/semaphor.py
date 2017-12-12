@@ -10,11 +10,11 @@ class Semaphor:
 
     def search(self, tradeId):
         while self.isLocked == True:
-            if self.isLocked == True:
+            if self.whoLocked == 'search':
+                self.isLocked = False
+            elif self.isLocked == True:
                 print('(Searcher): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
-            elif self.whoLocked == 'search':
-                self.isLocked = False
 
         self.isLocked = True
         self.whoLocked = 'search'
@@ -23,11 +23,11 @@ class Semaphor:
 
     def check(self, tradeId):
         while self.isLocked == True:
-            if self.isLocked == True:
+            if self.whoLocked == 'check':
+                self.isLocked = False
+            elif self.isLocked == True:
                 print('(Checker): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
-            elif self.whoLocked == 'check':
-                self.isLocked = False
 
         self.isLocked = True
         self.whoLocked = 'check'
