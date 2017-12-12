@@ -2,13 +2,15 @@ from fut.model.enumeration import State
 import time
 
 class TradeChecker:
-    def __init__(self, fut_session, db):
+    def __init__(self, fut_session, semaphore, db):
         self.session        = fut_session
+        self.semaphore      = semaphore
         self.db             = db
         self.length         = len(fut_session.watchlist())
         self.expire         = {}
         self.currentState   = State.wait
         self.watchlist      = fut_session.watchlist()
+
 
 
 
@@ -37,7 +39,8 @@ class TradeChecker:
 
                     elif itemOfWatchlist['expires'] == -1:
                         print('Datensatz zur DB senden')
-                        self.session.watchlistDelete(itemOfWatchlist['tradeId'])
+                        self.semaphore.check(itemOfWatchlist['tradeId'])
+                        #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
                         self.saveToDB(itemOfWatchlist)
                 except Exception as error:
                     print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)

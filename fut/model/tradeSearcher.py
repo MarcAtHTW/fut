@@ -1,14 +1,14 @@
 from fut.model.enumeration import State
 import time
 
-
 class TradeSearcher:
-    def __init__(self, fut_session, assetIds, minExpireTime, maxExpireTimeinMinutes):
+    def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes):
         self.assetId = 0
         self.assetIds = assetIds
         self.minExpireTimeInMinutes = minExpireTime
         self.maxExpireTimeinMinutes = maxExpireTimeinMinutes
         self.session = fut_session
+        self.semaphore = semaphore
         self.tradepile = fut_session.tradepile()
         self.length = len(fut_session.watchlist())
         self.watchlistSize = fut_session.watchlist_size
@@ -57,8 +57,7 @@ class TradeSearcher:
         print('{} From Page {}'.format(self.currentState, currentPage))
         self.currentState = State.chooseTrades
         for item in items_resultset:
-            if item['expires'] > minExpireTimeInSeconds and item[
-                'expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
+            if item['expires'] > minExpireTimeInSeconds and item['expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
                 self.saveToWatchlist(item['tradeId'])
                 tradeCounter += 1
             else:
@@ -93,7 +92,8 @@ class TradeSearcher:
         while tradeId not in self.tradeIDs:
             if self.length < self.watchlistSize:
                 try:
-                    self.session.sendToWatchlist(int(tradeId))
+                    self.semaphore.search(int(tradeId))
+                    #self.session.sendToWatchlist()
                     print("Player with TradeID {} added to Watchlist.".format(tradeId))
                 except Exception as error:
                     print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)

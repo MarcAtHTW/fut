@@ -8,6 +8,7 @@ from fut.model.tradeChecker import TradeChecker
 from fut.model.pinAutomater import PinAutomater
 from fut.model.credentials import Credentials
 from fut.model.database import readPlayers
+from fut.model.semaphor import Semaphor
 from random import shuffle
 
 credentials = Credentials()
@@ -35,6 +36,8 @@ fut = fut.Core(
     debug=True
 )
 
+semaphore = Semaphor(fut)
+
 """create fut_players table"""
 # executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
 """create fut_watchlist table"""
@@ -58,8 +61,8 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
 """ Objekterzeugung tradeSearcher und tradeChecker """
-tradeSearcher = TradeSearcher(fut, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
-tradeChecker = TradeChecker(fut, db)
+tradeSearcher = TradeSearcher(fut, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
+tradeChecker = TradeChecker(fut, semaphore, db)
 
 """ Thread Erzeugung """
 tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
