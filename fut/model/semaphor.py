@@ -21,6 +21,7 @@ class Semaphor:
 
         try:
             self.session.sendToWatchlist(int(tradeId))
+            self.isLocked = False
             return False
         except Exception as error:
             print('{Debug} An error in the semaphore def search has occurred: ', error)
@@ -40,6 +41,7 @@ class Semaphor:
 
         try:
             self.session.watchlistDelete(tradeId)
+            self.isLocked = False
             return False
         except Exception as error:
             print('{Debug} An error in the semaphore def check has occurred: ', error)
