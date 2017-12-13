@@ -9,7 +9,7 @@ class TradeSearcher:
         self.maxExpireTimeinMinutes = maxExpireTimeinMinutes
         self.session = fut_session
         self.semaphore = semaphore
-        self.tradepile = fut_session.tradepile()
+        # self.tradepile = fut_session.tradepile()
         self.length = len(fut_session.watchlist())
         self.watchlistSize = fut_session.watchlist_size
         self.expire = {}
