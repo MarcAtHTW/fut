@@ -69,8 +69,15 @@ tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSea
 tChecker = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
 
 """ Start der Threads """
-tSearcher.start()
-tChecker.start()
+while True:
+    if tSearcher.isAlive():
+        pass
+    else:
+        tSearcher.start()
+    if tChecker.isAlive():
+        pass
+    else:
+        tChecker.start()
 
 # print(fut.watchlist())
 

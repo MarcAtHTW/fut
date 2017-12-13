@@ -17,12 +17,13 @@ class TradeSearcher:
         self.currentState = State.pending
         self.watchlist = fut_session.watchlist()
         self.numberOfPlayers = 50
+        self.error = False
 
     def startTradeSearcher(self):
         print('### TradeSearcher started ###')
         """ Clear Watchlist at startup. """
         # self.clear()
-        while True:
+        while self.error is False:
             for assetId in self.assetIds:
                 print('(Debug): Current ressource ID: {}'.format(assetId))
                 self.assetId = assetId
@@ -53,6 +54,7 @@ class TradeSearcher:
                                                           page_size=25)
         except Exception as error:
             print('{Debug} An error in the tradeSearcher has occurred: search failed: ', error)
+            self.error = True
 
         print('{} From Page {}'.format(self.currentState, currentPage))
         self.currentState = State.chooseTrades
@@ -69,7 +71,7 @@ class TradeSearcher:
 
 
     def getIdsFromPage(self, page):
-        """ Gets all ID's from Current Resultset.
+        """ Gets all ID's from Current q Resultset.
         :param page: Pages (Resultset) of transfermarketsearch.
         :type page: dict
         :return:
@@ -83,7 +85,11 @@ class TradeSearcher:
         """ Sends current tradeId to watchlist
         :param tradeId: tradeId of current trade
         """
-        self.length = len(self.session.watchlist())
+        try:
+            self.length = len(self.session.watchlist())
+        except Exception as error:
+            print('{Debug} An error in the tradeSearcher has occurred: len watchlist failed: ', error)
+            self.error = True
         self.currentState = State.watchTrades
 
         print('trades on watchlist: ', self.length)
@@ -92,17 +98,22 @@ class TradeSearcher:
         while tradeId not in self.tradeIDs:
             if self.length < self.watchlistSize:
                 try:
-                    self.semaphore.search(int(tradeId))
+                    self.error = self.semaphore.search(int(tradeId))
                     #self.session.sendToWatchlist()
                     print("Player with TradeID {} added to Watchlist.".format(tradeId))
                 except Exception as error:
                     print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)
-                    # self.startTradeSearcher()
+                    self.error = True
                 break
             else:
                 print('No free slot on Watchlist. Waiting for 2 sec.')
                 time.sleep(2)
-                self.length = len(self.session.watchlist())
+                try:
+                    self.length = len(self.session.watchlist())
+                except Exception as error:
+                    print('{Debug} An error in the tradeSearcher has occurred: No free slot, update length watchlist: ',
+                          error)
+                    self.error = True
 
     def loadTradeIdsFromLiveWatchlist(self):
         """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
@@ -110,7 +121,11 @@ class TradeSearcher:
         :return:  live Trade-IDs from watchlist.
         """
         tradeIds = []
-        resultset = self.session.watchlist()
+        try:
+            resultset = self.session.watchlist()
+        except Exception as error:
+            print('{Debug} An error in the tradeSearcher has occurred: get watchlist: ', error)
+            self.error = True
         for item in resultset:
             tradeIds.append(item['tradeId'])
         self.tradeIDs = tradeIds
@@ -131,9 +146,15 @@ class TradeSearcher:
                 i = 0
                 for tradeID in self.tradeIDs:
                     i += 1
-                    self.session.watchlistDelete(tradeID)
-                    print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist,
+                    try:
+                        self.session.watchlistDelete(tradeID)
+                        print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist,
                                                                                           tradeID))
+                    except Exception as error:
+                        print(
+                            '{Debug} An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: '.format(
+                                tradeID, error))
+                        self.error = True
                 self.tradeIDs = []
         elif listTradeIds != None:
             lenItemsTradeIdlist = len(listTradeIds)
@@ -141,7 +162,14 @@ class TradeSearcher:
             i = 0
             for tradeID in listTradeIds:
                 i += 1
-                self.session.watchlistDelete(tradeID)
-                print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsTradeIdlist, tradeID))
+                try:
+                    self.session.watchlistDelete(tradeID)
+                    print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsTradeIdlist,
+                                                                                          tradeID))
+                except Exception as error:
+                    print(
+                        '{Debug} An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: '.format(
+                            tradeID, error))
+                    self.error = True
             self.tradeIDs = []
         self.currentState = State.pending
