@@ -12,7 +12,7 @@ class Semaphor:
         while self.isLocked == True:
             if self.whoLocked == 'search':
                 self.isLocked = False
-            elif self.isLocked == True:
+            else:
                 print('(Searcher): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
@@ -25,7 +25,7 @@ class Semaphor:
         while self.isLocked == True:
             if self.whoLocked == 'check':
                 self.isLocked = False
-            elif self.isLocked == True:
+            else:
                 print('(Checker): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
