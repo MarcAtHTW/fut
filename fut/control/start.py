@@ -9,6 +9,7 @@ from fut.model.pinAutomater import PinAutomater
 from fut.model.credentials import Credentials
 from fut.model.database import readPlayers
 from fut.model.semaphor import Semaphor
+from fut.model.threadStatus import ThreadStatus
 from random import shuffle
 
 credentials = Credentials()
@@ -28,15 +29,20 @@ pinAutomater = PinAutomater(
 )
 
 # Verbindung zu EA
-fut = fut.Core(
-    credentials.ea['mail'],
-    credentials.ea['pass'],
-    credentials.ea['secr'],
-    # code=pinAutomater,
-    debug=True
-)
+# fut = fut.Core(
+#     credentials.ea['mail'],
+#     credentials.ea['pass'],
+#     credentials.ea['secr'],
+#     # code=pinAutomater,
+#     debug=True
+# )
 
 semaphore = Semaphor(fut)
+threadStatus = ThreadStatus()
+tSearcher = None
+tChecker = None
+session = None
+
 
 """create fut_players table"""
 # executeSqlFromFile(db, '../model/sqlqueries/futplayers.sql')
@@ -61,22 +67,37 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
 """ Objekterzeugung tradeSearcher und tradeChecker """
-tradeSearcher = TradeSearcher(fut, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes)
-tradeChecker = TradeChecker(fut, semaphore, db)
+tradeSearcher = TradeSearcher(fut, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus)
+tradeChecker = TradeChecker(fut, semaphore, db, threadStatus)
+
+
+def createThreads(mail, passw, secr, futCore):
+    """
+    Creates new fut session and two new threads for the tradeSearcher and tradeChecker
+    :param mail:
+    :param passw:
+    :param secr:
+    :param futCore:
+    :return:
+    """
+    sess = futCore.Core(mail, passw, secr, debug=True)
+    tSearch = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
+    tCheck = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
+    return sess, tSearch, tCheck
 
 """ Thread Erzeugung """
-tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
-tChecker = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
+# tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
+# tChecker = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
+
 
 """ Start der Threads """
 while True:
-    if tSearcher.isAlive():
-        pass
-    else:
+    if (tSearcher.isAlive() is False and tChecker.isAlive() is False) or (tSearcher is None and tChecker is None):
+        session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
+                                                     credentials.ea['secr'], fut)
+        threadStatus.setSearcherStatus(True)
+        threadStatus.setCheckerStatus(True)
         tSearcher.start()
-    if tChecker.isAlive():
-        pass
-    else:
         tChecker.start()
 
 # print(fut.watchlist())

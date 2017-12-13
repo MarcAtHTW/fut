@@ -2,7 +2,7 @@ from fut.model.enumeration import State
 import time
 
 class TradeSearcher:
-    def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes):
+    def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes, threadStatus):
         self.assetId = 0
         self.assetIds = assetIds
         self.minExpireTimeInMinutes = minExpireTime
@@ -18,17 +18,23 @@ class TradeSearcher:
         self.watchlist = fut_session.watchlist()
         self.numberOfPlayers = 50
         self.error = False
+        self.threadStatus = threadStatus
 
     def startTradeSearcher(self):
         print('### TradeSearcher started ###')
         """ Clear Watchlist at startup. """
         # self.clear()
         while self.error is False:
-            for assetId in self.assetIds:
-                print('(Debug): Current ressource ID: {}'.format(assetId))
-                self.assetId = assetId
-                """ Search Trades for current assetId"""
-                self.searchAsset(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, assetId)
+            if self.threadStatus.getCheckerStatus() is False:
+                self.error is True
+            else:
+                for assetId in self.assetIds:
+                    print('(Debug): Current ressource ID: {}'.format(assetId))
+                    self.assetId = assetId
+                    """ Search Trades for current assetId"""
+                    self.searchAsset(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, assetId)
+        self.threadStatus.setCheckerStatus(False)
+
 
     def searchAsset(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, assetId):
         """

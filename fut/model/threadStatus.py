@@ -1,6 +1,4 @@
-
-
-class threadStatus:
+class ThreadStatus:
 
     def __init__(self):
         self.isSearcherAlive                   = True
