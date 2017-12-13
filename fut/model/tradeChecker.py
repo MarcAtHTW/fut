@@ -3,13 +3,14 @@ import time
 
 class TradeChecker:
     def __init__(self, fut_session, semaphore, db):
-        self.session        = fut_session
-        self.semaphore      = semaphore
-        self.db             = db
-        self.length         = len(fut_session.watchlist())
-        self.expire         = {}
-        self.currentState   = State.wait
-        self.watchlist      = fut_session.watchlist()
+        self.session            = fut_session
+        self.semaphore          = semaphore
+        self.db                 = db
+        self.length             = len(fut_session.watchlist())
+        self.expire             = {}
+        self.currentState       = State.wait
+        self.watchlist          = fut_session.watchlist()
+        self.anErrorHasOccured   = True
 
 
 
@@ -17,14 +18,15 @@ class TradeChecker:
 # watchliste abrufen und items nach abgelaufenen Objekten suchen. (expires ist dann auf -1)
 # wenn expired dann def SaveToDB
     def startTradeChecker(self):
-        anErrorIsReached = False
+
         print('### TradeChecker started ###')
 
-        while anErrorIsReached is False:
+        while self.anErrorHasOccured is True:
             try:
                 lengthWatchlist = len(self.session.watchlist())
             except Exception as error:
                 print('{Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
+                self.anErrorHasOccured = False
             # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
             if lengthWatchlist == 0:
                 print('Kein Item auf der Watchlist, Sleep eine Minute')
@@ -44,6 +46,7 @@ class TradeChecker:
                         self.saveToDB(itemOfWatchlist)
                 except Exception as error:
                     print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)
+                    self.anErrorHasOccured = False
 
 
 
@@ -133,6 +136,7 @@ class TradeChecker:
         except IndexError as e:
             isDataOK = False
             print("Index Error in database.py: {}".format(e))
+            self.anErrorHasOccured = True
 
         if isDataOK:
             sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
