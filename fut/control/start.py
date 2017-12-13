@@ -37,7 +37,7 @@ pinAutomater = PinAutomater(
 #     debug=True
 # )
 
-semaphore = Semaphor(fut)
+
 threadStatus = ThreadStatus()
 tSearcher = None
 tChecker = None
@@ -66,21 +66,27 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.startBot()
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
-""" Objekterzeugung tradeSearcher und tradeChecker """
-tradeSearcher = TradeSearcher(fut, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus)
-tradeChecker = TradeChecker(fut, semaphore, db, threadStatus)
 
-
-def createThreads(mail, passw, secr, futCore):
+def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus):
     """
     Creates new fut session and two new threads for the tradeSearcher and tradeChecker
     :param mail:
     :param passw:
     :param secr:
     :param futCore:
-    :return:
+    :param assetIds:
+    :param minExpireTimeInMinutes:
+    :param maxExpireTimeInMinutes:
+    :param threadStatus:
+    :return: session, tSearcher, tChecker
     """
     sess = futCore.Core(mail, passw, secr, debug=True)
+    semaphore = Semaphor(sess)
+    """ Objekterzeugung tradeSearcher und tradeChecker """
+    tradeSearcher = TradeSearcher(sess, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes,
+                                  threadStatus)
+    tradeChecker = TradeChecker(sess, semaphore, db, threadStatus)
+
     tSearch = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
     tCheck = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
     return sess, tSearch, tCheck
@@ -92,9 +98,18 @@ def createThreads(mail, passw, secr, futCore):
 
 """ Start der Threads """
 while True:
-    if (tSearcher.isAlive() is False and tChecker.isAlive() is False) or (tSearcher is None and tChecker is None):
+    if (tSearcher is None and tChecker is None):
+        go = True
+    elif (tSearcher.isAlive() is False and tChecker.isAlive() is False):
+        go = True
+    else:
+        go = False
+
+    if go is True:
+        print('uups something happened, we will just restart the threads, lol')
         session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
-                                                     credentials.ea['secr'], fut)
+                                                     credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
+                                                     maxExpireTimeInMinutes, threadStatus)
         threadStatus.setSearcherStatus(True)
         threadStatus.setCheckerStatus(True)
         tSearcher.start()
