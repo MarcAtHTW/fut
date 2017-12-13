@@ -33,7 +33,7 @@ class TradeSearcher:
                     self.assetId = assetId
                     """ Search Trades for current assetId"""
                     self.searchAsset(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, assetId)
-        self.threadStatus.setCheckerStatus(False)
+        self.threadStatus.setSearcherStatus(False)
 
 
     def searchAsset(self, minExpireTimeInMinutes, maxExpireTimeinMinutes, assetId):

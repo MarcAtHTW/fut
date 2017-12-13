@@ -33,18 +33,18 @@ class TradeChecker:
                     self.anErrorHasOccured = True
                 # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
                 if lengthWatchlist == 0:
-                    print('Kein Item auf der Watchlist, Sleep eine Minute')
+                    print('TradeChecker: Kein Item auf der Watchlist, Sleep eine Minute')
                     time.sleep(60)
                 else:
                     try:
                         itemOfWatchlist = self.session.watchlist()[0]
 
                         if itemOfWatchlist['expires'] != -1:
-                            print('Sleep expireTime: ' + str(itemOfWatchlist['expires']))
+                            print('TradeChecker: Sleep expireTime: ' + str(itemOfWatchlist['expires']))
                             time.sleep(itemOfWatchlist['expires'])
 
                         elif itemOfWatchlist['expires'] == -1:
-                            print('Datensatz zur DB senden')
+                            print('TradeChecker: Datensatz ( ' + itemOfWatchlist['tradeId'] + ' ) zur DB senden')
                             self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
                             #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
                             self.saveToDB(itemOfWatchlist)

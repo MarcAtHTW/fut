@@ -14,6 +14,8 @@ class ThreadStatus:
 
     def setSearcherStatus(self, status):
         self.isSearcherAlive = status
+        print('ThreadStatus: Searcher-Status changed to: {}'.format(self.isSearcherAlive))
 
     def setCheckerStatus(self, status):
         self.isCheckerAlive = status
+        print('ThreadStatus: Checker-Status changed to: {}'.format(self.isCheckerAlive))

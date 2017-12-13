@@ -13,7 +13,7 @@ class Semaphor:
             if self.whoLocked == 'Searcher':
                 self.isLocked = False
             else:
-                print('(Searcher): isLocked == True ! von: {}'.format(self.whoLocked))
+                print('Semaphore: (Searcher): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
         self.isLocked = True
@@ -33,7 +33,7 @@ class Semaphor:
             if self.whoLocked == 'Checker':
                 self.isLocked = False
             else:
-                print('(Checker): isLocked == True ! von: {}'.format(self.whoLocked))
+                print('Semaphore: (Checker): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
         self.isLocked = True
