@@ -10,7 +10,7 @@ class TradeChecker:
         self.expire             = {}
         self.currentState       = State.wait
         self.watchlist          = fut_session.watchlist()
-        self.anErrorHasOccured   = True
+        self.anErrorHasOccured   = False
 
 
 
@@ -21,12 +21,12 @@ class TradeChecker:
 
         print('### TradeChecker started ###')
 
-        while self.anErrorHasOccured is True:
+        while self.anErrorHasOccured is False:
             try:
                 lengthWatchlist = len(self.session.watchlist())
             except Exception as error:
                 print('{Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
-                self.anErrorHasOccured = False
+                self.anErrorHasOccured = True
             # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
             if lengthWatchlist == 0:
                 print('Kein Item auf der Watchlist, Sleep eine Minute')
@@ -41,12 +41,12 @@ class TradeChecker:
 
                     elif itemOfWatchlist['expires'] == -1:
                         print('Datensatz zur DB senden')
-                        self.semaphore.check(itemOfWatchlist['tradeId'])
+                        self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
                         #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
                         self.saveToDB(itemOfWatchlist)
                 except Exception as error:
                     print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)
-                    self.anErrorHasOccured = False
+                    self.anErrorHasOccured = True
 
 
 
