@@ -38,13 +38,12 @@ class TradeChecker:
                 else:
                     try:
                         itemOfWatchlist = self.session.watchlist()[0]
-
                         if itemOfWatchlist['expires'] != -1:
                             print('TradeChecker: Sleep expireTime: ' + str(itemOfWatchlist['expires']))
                             time.sleep(itemOfWatchlist['expires'])
 
                         elif itemOfWatchlist['expires'] == -1:
-                            print('TradeChecker: Datensatz ( ' + itemOfWatchlist['tradeId'] + ' ) zur DB senden')
+                            print('TradeChecker: Datensatz ( ' + str(itemOfWatchlist['tradeId']) + ' ) zur DB senden')
                             self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
                             #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
                             self.saveToDB(itemOfWatchlist)
@@ -141,8 +140,7 @@ class TradeChecker:
         except IndexError as e:
             isDataOK = False
             print("Index Error in database.py: {}".format(e))
-            self.anErrorHasOccured = True
-
+            
         if isDataOK:
             sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
                   "rating, assetId, resourceId, itemState, rareflag, formation, leagueId, injuryType, injuryGames, lastSalePrice, fitness, training, suspension, contract, pos_ition, playStyle, discardValue, itemType, " \
