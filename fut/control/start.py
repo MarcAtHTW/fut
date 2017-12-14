@@ -49,6 +49,7 @@ threadStatus = ThreadStatus()
 tSearcher = None
 tChecker = None
 session = None
+tSlacker = None
 
 
 """create fut_players table"""
@@ -98,10 +99,7 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     tSearch = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
     tCheck = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
 
-    threadSlackLogger = ThreadSlackLogger(tCheck, tSearch, slack_client)
-
-    tSlack = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
-    return sess, tSearch, tCheck, tSlack
+    return sess, tSearch, tCheck
 
 """ Thread Erzeugung """
 # tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
@@ -119,14 +117,18 @@ while True:
 
     if go is True:
         print('uups something happened, we will just restart the threads, lol')
-        session, tSearcher, tChecker, tSlack = createThreads(credentials.ea['mail'], credentials.ea['pass'],
+        session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
                                                      credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
                                                      maxExpireTimeInMinutes, threadStatus, slack_client)
         threadStatus.setSearcherStatus(True)
         threadStatus.setCheckerStatus(True)
         tSearcher.start()
         tChecker.start()
-        tSlack.start()
+
+        if (tSlacker is None):
+            threadSlackLogger = ThreadSlackLogger(tChecker, tSearcher, slack_client)
+            tSlacker = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
+            tSlacker.start()
 
 # print(fut.watchlist())
 
