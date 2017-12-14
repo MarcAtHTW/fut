@@ -2,7 +2,7 @@ from fut.model.enumeration import State
 import time
 
 class TradeChecker:
-    def __init__(self, fut_session, semaphore, db, threadStatus):
+    def __init__(self, fut_session, semaphore, db, threadStatus, slack_client):
         self.session            = fut_session
         self.semaphore          = semaphore
         self.db                 = db
@@ -12,6 +12,7 @@ class TradeChecker:
         self.watchlist          = fut_session.watchlist()
         self.anErrorHasOccured  = False
         self.threadStatus       = threadStatus
+        self.slack_client       = slack_client
 
 
 

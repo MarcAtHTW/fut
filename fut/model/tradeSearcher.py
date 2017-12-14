@@ -3,7 +3,7 @@ import time
 from random import shuffle
 
 class TradeSearcher:
-    def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes, threadStatus):
+    def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes, threadStatus, slack_client):
         self.assetId = 0
         self.assetIds = assetIds
         self.minExpireTimeInMinutes = minExpireTime
@@ -20,6 +20,7 @@ class TradeSearcher:
         self.numberOfPlayers = 50
         self.error = False
         self.threadStatus = threadStatus
+        self.slack_client = slack_client
 
     def startTradeSearcher(self):
         print('### TradeSearcher started ###')

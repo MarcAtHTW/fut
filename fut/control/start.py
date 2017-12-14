@@ -2,6 +2,7 @@ import fut
 import threading
 
 from fut.model import dbConnector as DB
+from fut.model.threadSlackLogger import ThreadSlackLogger
 from fut.model.watchlist import Watchlist
 from fut.model.tradeSearcher import TradeSearcher
 from fut.model.tradeChecker import TradeChecker
@@ -11,6 +12,10 @@ from fut.model.database import readPlayers
 from fut.model.semaphor import Semaphor
 from fut.model.threadStatus import ThreadStatus
 from random import shuffle
+
+# Slackimport
+from slackclient import SlackClient
+
 
 credentials = Credentials()
 
@@ -36,6 +41,8 @@ pinAutomater = PinAutomater(
 #     # code=pinAutomater,
 #     debug=True
 # )
+
+slack_client = SlackClient(credentials.slack['slack_token'])
 
 
 threadStatus = ThreadStatus()
@@ -67,7 +74,7 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
 
-def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus):
+def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus, slack_client):
     """
     Creates new fut session and two new threads for the tradeSearcher and tradeChecker
     :param mail:
@@ -84,12 +91,17 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     semaphore = Semaphor(sess)
     """ Objekterzeugung tradeSearcher und tradeChecker """
     tradeSearcher = TradeSearcher(sess, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes,
-                                  threadStatus)
-    tradeChecker = TradeChecker(sess, semaphore, db, threadStatus)
+                                  threadStatus, slack_client)
+    tradeChecker = TradeChecker(sess, semaphore, db, threadStatus, slack_client)
+
 
     tSearch = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
     tCheck = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
-    return sess, tSearch, tCheck
+
+    threadSlackLogger = ThreadSlackLogger(tCheck, tSearch, slack_client)
+
+    tSlack = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
+    return sess, tSearch, tCheck, tSlack
 
 """ Thread Erzeugung """
 # tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
@@ -107,13 +119,14 @@ while True:
 
     if go is True:
         print('uups something happened, we will just restart the threads, lol')
-        session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
+        session, tSearcher, tChecker, tSlack = createThreads(credentials.ea['mail'], credentials.ea['pass'],
                                                      credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
-                                                     maxExpireTimeInMinutes, threadStatus)
+                                                     maxExpireTimeInMinutes, threadStatus, slack_client)
         threadStatus.setSearcherStatus(True)
         threadStatus.setCheckerStatus(True)
         tSearcher.start()
         tChecker.start()
+        tSlack.start()
 
 # print(fut.watchlist())
 
