@@ -27,7 +27,7 @@ class TradeSearcher:
         # self.clear()
         while self.error is False:
             if self.threadStatus.getCheckerStatus() is False:
-                self.error is True
+                self.error = True
                 shuffle(self.assetIds)
             else:
                 for assetId in self.assetIds:
@@ -55,6 +55,7 @@ class TradeSearcher:
         currentPage = 1
         tradeCounter = 0
         noNewTradeCounter = 0
+        items_resultset = []
 
         self.currentState = State.search
         try:
@@ -106,7 +107,7 @@ class TradeSearcher:
         # TODO Was ist wenn TradeId immer auf der Watchlist ist(TradeIds) und die While übersprungen wird? (Bug zur Laufzeit erkannt TradeCounter = 5 obwohl nichts auf die Watchlist gesetzt wurde)
         while tradeId not in self.tradeIDs and self.error is False:
             if self.threadStatus.getCheckerStatus() is False:
-                self.error is True
+                self.error = True
             else:
                 if self.length < self.watchlistSize:
                     try:
@@ -165,7 +166,7 @@ class TradeSearcher:
                                                                                           tradeID))
                     except Exception as error:
                         print(
-                            '{Debug} An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: '.format(
+                            '(Debug) An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: {}'.format(
                                 tradeID, error))
                         self.error = True
                 self.tradeIDs = []
@@ -181,7 +182,7 @@ class TradeSearcher:
                                                                                           tradeID))
                 except Exception as error:
                     print(
-                        '{Debug} An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: '.format(
+                        'Debug An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: {}'.format(
                             tradeID, error))
                     self.error = True
             self.tradeIDs = []
