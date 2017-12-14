@@ -27,10 +27,11 @@ class TradeSearcher:
         """ Clear Watchlist at startup. """
         # self.clear()
         while self.error is False:
+            shuffle(self.assetIds)
             if self.threadStatus.getCheckerStatus() is False:
                 self.error = True
-                shuffle(self.assetIds)
             else:
+                # TODO @Basti in der Semaphore ist eine Session exception geflogen, somit kann die nicht mehr verwendet werden. Alle For Schleifen bis zu dieser laufen aber trotzdem weiter und der Vorgang bricht erst ab wenn alle assetIds durchgelaufen sind. Deshalb bricht dann irgendwann die erste While auch ab und alles startet neu.
                 for assetId in self.assetIds:
                     print('(Debug): Current ressource ID: {}'.format(assetId))
                     self.assetId = assetId
