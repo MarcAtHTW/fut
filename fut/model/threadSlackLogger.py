@@ -2,10 +2,11 @@ import time
 
 class ThreadSlackLogger:
 
-    def __init__(self, tCheck, tSearch, slack_client):
+    def __init__(self, tCheck, tSearch, slack_client, botName):
         self.threadChecker                  = tCheck
         self.threadSearcher                 = tSearch
-        self.slack_client                    = slack_client
+        self.slack_client                   = slack_client
+        self.botName                        =botName
 
 
     def ckeckThreads(self):
@@ -18,7 +19,7 @@ class ThreadSlackLogger:
                 if self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == False:
                     print('SlackLogger: all Bots are not alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
-                                          text='<!channel|> IMPORTANT: No thread is running!!!.',
+                                          text=self.botName+'<!channel|> IMPORTANT: No thread is running!!!.',
                                           username='pythonbot')
                     time.sleep(200)
             elif (self.threadChecker.isAlive() == True and self.threadSearcher.isAlive() == False) or (
@@ -28,7 +29,7 @@ class ThreadSlackLogger:
                             self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == True):
                     print('SlackLogger: Only one Bot is alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
-                                               text='<!channel|> IMPORTANT: Only one Bot is alive!!!.',
+                                               text=self.botName+'<!channel|> IMPORTANT: Only one Bot is alive!!!.',
                                                username='pythonbot')
                     time.sleep(200)
 

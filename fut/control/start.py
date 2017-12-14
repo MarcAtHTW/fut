@@ -43,7 +43,7 @@ pinAutomater = PinAutomater(
 # )
 
 slack_client = SlackClient(credentials.slack['slack_token'])
-
+botName = 'BotChris: '
 
 threadStatus = ThreadStatus()
 tSearcher = None
@@ -126,7 +126,7 @@ while True:
         tChecker.start()
 
         if (tSlacker is None):
-            threadSlackLogger = ThreadSlackLogger(tChecker, tSearcher, slack_client)
+            threadSlackLogger = ThreadSlackLogger(tChecker, tSearcher, slack_client, botName)
             tSlacker = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
             tSlacker.start()
 
