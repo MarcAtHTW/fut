@@ -67,16 +67,20 @@ class TradeSearcher:
 
         print('{} From Page {}'.format(self.currentState, currentPage))
         self.currentState = State.chooseTrades
-        for item in items_resultset:
-            if item['expires'] > minExpireTimeInSeconds and item['expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
-                self.saveToWatchlist(item['tradeId'])
-                tradeCounter += 1
-            else:
-                noNewTradeCounter += 1
-            if tradeCounter >= 5 or noNewTradeCounter >= 10:
-                break
-        print('Break due to tradeCounter: ', tradeCounter)
-        print('Break due to noNewTradeCounter: ', noNewTradeCounter)
+        if len(items_resultset) > 0:
+            for item in items_resultset:
+                if item['expires'] > minExpireTimeInSeconds and item[
+                    'expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
+                    self.saveToWatchlist(item['tradeId'])
+                    tradeCounter += 1
+                else:
+                    noNewTradeCounter += 1
+                if tradeCounter >= 5 or noNewTradeCounter >= 10:
+                    break
+            print('Break due to tradeCounter: ', tradeCounter)
+            print('Break due to noNewTradeCounter: ', noNewTradeCounter)
+        else:
+            print('#### No trades in search result')
 
 
     def getIdsFromPage(self, page):
