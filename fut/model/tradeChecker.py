@@ -23,11 +23,13 @@ class TradeChecker:
         print('### TradeChecker started ###')
 
         while self.anErrorHasOccured is False:
+            print('TradeChecker: Status vom Searcher is: {}'.format(self.threadStatus.getSearcherStatus()))
             if self.threadStatus.getSearcherStatus() == False:
                 self.anErrorHasOccured = True
             else:
                 try:
                     lengthWatchlist = len(self.session.watchlist())
+                    print('TradeChecker: lenght watchlist ist: ' + str(lengthWatchlist))
                 except Exception as error:
                     print('{Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
                     self.anErrorHasOccured = True
@@ -43,9 +45,10 @@ class TradeChecker:
                             time.sleep(itemOfWatchlist['expires'])
 
                         elif itemOfWatchlist['expires'] == -1:
-                            print('TradeChecker: Datensatz ( ' + str(itemOfWatchlist['tradeId']) + ' ) zur DB senden')
+                            print('TradeChecker: Trade mit der ID: ( ' + str(itemOfWatchlist['tradeId']) + ' ) auf Watchlist löschen')
                             self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
                             #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
+                            print('TradeChecker: Datensatz an DB-Methode senden')
                             self.saveToDB(itemOfWatchlist)
                     except Exception as error:
                         print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)
@@ -140,7 +143,7 @@ class TradeChecker:
         except IndexError as e:
             isDataOK = False
             print("Index Error in database.py: {}".format(e))
-            
+
         if isDataOK:
             sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
                   "rating, assetId, resourceId, itemState, rareflag, formation, leagueId, injuryType, injuryGames, lastSalePrice, fitness, training, suspension, contract, pos_ition, playStyle, discardValue, itemType, " \

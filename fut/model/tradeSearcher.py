@@ -1,5 +1,6 @@
 from fut.model.enumeration import State
 import time
+from random import shuffle
 
 class TradeSearcher:
     def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes, threadStatus):
@@ -27,6 +28,7 @@ class TradeSearcher:
         while self.error is False:
             if self.threadStatus.getCheckerStatus() is False:
                 self.error is True
+                shuffle(self.assetIds)
             else:
                 for assetId in self.assetIds:
                     print('(Debug): Current ressource ID: {}'.format(assetId))
@@ -72,8 +74,8 @@ class TradeSearcher:
                 noNewTradeCounter += 1
             if tradeCounter >= 5 or noNewTradeCounter >= 10:
                 break
-        print('tradeCounter: ', tradeCounter)
-        print('noNewTradeCounter: ', noNewTradeCounter)
+        print('Break due to tradeCounter: ', tradeCounter)
+        print('Break due to noNewTradeCounter: ', noNewTradeCounter)
 
 
     def getIdsFromPage(self, page):
@@ -101,25 +103,29 @@ class TradeSearcher:
         print('trades on watchlist: ', self.length)
 
         self.loadTradeIdsFromLiveWatchlist()
-        while tradeId not in self.tradeIDs:
-            if self.length < self.watchlistSize:
-                try:
-                    self.error = self.semaphore.search(int(tradeId))
-                    #self.session.sendToWatchlist()
-                    print("Player with TradeID {} added to Watchlist.".format(tradeId))
-                except Exception as error:
-                    print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)
-                    self.error = True
-                break
+        # TODO Was ist wenn TradeId immer auf der Watchlist ist(TradeIds) und die While übersprungen wird? (Bug zur Laufzeit erkannt TradeCounter = 5 obwohl nichts auf die Watchlist gesetzt wurde)
+        while tradeId not in self.tradeIDs and self.error is False:
+            if self.threadStatus.getCheckerStatus() is False:
+                self.error is True
             else:
-                print('No free slot on Watchlist. Waiting for 2 sec.')
-                time.sleep(2)
-                try:
-                    self.length = len(self.session.watchlist())
-                except Exception as error:
-                    print('{Debug} An error in the tradeSearcher has occurred: No free slot, update length watchlist: ',
-                          error)
-                    self.error = True
+                if self.length < self.watchlistSize:
+                    try:
+                        self.error = self.semaphore.search(int(tradeId))
+                        #self.session.sendToWatchlist()
+                        print("Player with TradeID {} added to Watchlist.".format(tradeId))
+                    except Exception as error:
+                        print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)
+                        self.error = True
+                    break
+                else:
+                    print('No free slot on Watchlist. Waiting for 2 sec.')
+                    time.sleep(2)
+                    try:
+                        self.length = len(self.session.watchlist())
+                    except Exception as error:
+                        print('{Debug} An error in the tradeSearcher has occurred: No free slot, update length watchlist: ',
+                              error)
+                        self.error = True
 
     def loadTradeIdsFromLiveWatchlist(self):
         """ Gets the current live Trade-IDs from watchlist and loads it into local property tradeIDs
@@ -127,6 +133,7 @@ class TradeSearcher:
         :return:  live Trade-IDs from watchlist.
         """
         tradeIds = []
+        resultset = []
         try:
             resultset = self.session.watchlist()
         except Exception as error:
