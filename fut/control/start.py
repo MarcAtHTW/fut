@@ -43,7 +43,7 @@ pinAutomater = PinAutomater(
 # )
 
 slack_client = SlackClient(credentials.slack['slack_token'])
-botName = 'BotChris: '
+botName = 'Bot_Chris: '
 
 threadStatus = ThreadStatus()
 tSearcher = None
@@ -75,7 +75,7 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 # watchlist.loadTradeIdsFromLiveWatchlist()
 
 
-def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus, slack_client):
+def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus, slack_client, nameBot):
     """
     Creates new fut session and two new threads for the tradeSearcher and tradeChecker
     :param mail:
@@ -89,7 +89,8 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     :return: session, tSearcher, tChecker
     """
     sess = futCore.Core(mail, passw, secr, debug=True)
-    semaphore = Semaphor(sess)
+
+    semaphore = Semaphor(sess, slack_client, nameBot)
     """ Objekterzeugung tradeSearcher und tradeChecker """
     tradeSearcher = TradeSearcher(sess, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes,
                                   threadStatus, slack_client)
@@ -119,7 +120,7 @@ while True:
         print('uups something happened, we will just restart the threads, lol')
         session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
                                                      credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
-                                                     maxExpireTimeInMinutes, threadStatus, slack_client)
+                                                     maxExpireTimeInMinutes, threadStatus, slack_client, botName)
         threadStatus.setSearcherStatus(True)
         threadStatus.setCheckerStatus(True)
         tSearcher.start()
@@ -140,3 +141,5 @@ while True:
 # tradeChecker.startTradeChecker()
 
 print('start.py Done')
+
+

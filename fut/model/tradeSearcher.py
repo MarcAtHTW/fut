@@ -33,6 +33,8 @@ class TradeSearcher:
             else:
                 # TODO @Basti in der Semaphore ist eine Session exception geflogen, somit kann die nicht mehr verwendet werden. Alle For Schleifen bis zu dieser laufen aber trotzdem weiter und der Vorgang bricht erst ab wenn alle assetIds durchgelaufen sind. Deshalb bricht dann irgendwann die erste While auch ab und alles startet neu.
                 for assetId in self.assetIds:
+                    if self.error == True:
+                        break
                     print('(Debug): Current ressource ID: {}'.format(assetId))
                     self.assetId = assetId
                     """ Search Trades for current assetId"""
@@ -71,7 +73,9 @@ class TradeSearcher:
         self.currentState = State.chooseTrades
         if len(items_resultset) > 0:
             for item in items_resultset:
-                if item['expires'] > minExpireTimeInSeconds and item[
+                if self.error == True:
+                    break
+                elif item['expires'] > minExpireTimeInSeconds and item[
                     'expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
                     self.saveToWatchlist(item['tradeId'])
                     tradeCounter += 1

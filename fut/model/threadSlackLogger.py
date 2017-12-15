@@ -7,6 +7,8 @@ class ThreadSlackLogger:
         self.threadSearcher                 = tSearch
         self.slack_client                   = slack_client
         self.botName                        = botName
+        self.allThreadsCounter              = 0
+        self.oneThreadCounter                 = 0
 
 
     def ckeckThreads(self):
@@ -15,23 +17,34 @@ class ThreadSlackLogger:
         andErrorHasOccured = False
         while andErrorHasOccured is False:
             if self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == False:
-                time.sleep(30)
-                if self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == False:
+                # print('SlackLogger: all Bots are not alive')
+                self.allThreadsCounter += 1
+                time.sleep(60)
+                if self.allThreadsCounter == 3:
                     print('SlackLogger: all Bots are not alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
                                           text=self.botName+'<!channel|> IMPORTANT: No thread is running!!!.',
                                           username='pythonbot')
-                    andErrorHasOccured = True
-            elif (self.threadChecker.isAlive() == True and self.threadSearcher.isAlive() == False) or (
+                    time.sleep(3600)
+                    self.allThreadsCounter = 0
+            else:
+                self.allThreadsCounter -= 1
+
+            if (self.threadChecker.isAlive() == True and self.threadSearcher.isAlive() == False) or (
                             self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == True):
-                time.sleep(30)
-                if (self.threadChecker.isAlive() == True and self.threadSearcher.isAlive() == False) or (
-                            self.threadChecker.isAlive() == False and self.threadSearcher.isAlive() == True):
-                    print('SlackLogger: Only one Bot is alive')
+                self.oneThreadCounter += 1
+                time.sleep(60)
+                if self.oneThreadCounter == 3:
+                    print('SlackLogger: all Bots are not alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
-                                               text=self.botName+'<!channel|> IMPORTANT: Only one Bot is alive!!!.',
+                                               text=self.botName + '<!channel|> IMPORTANT: One Thread is running!!! Checker: '+self.threadChecker+', Searcher: '+self.threadSearcher,
                                                username='pythonbot')
-                    andErrorHasOccured = True
+                    time.sleep(3600)
+                    self.oneThreadCounter = 0
+            else:
+                self.oneThreadCounter -= 1
+
+
 
 
 

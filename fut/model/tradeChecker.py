@@ -157,3 +157,4 @@ class TradeChecker:
             print('trade {} saved to db'.format(item["tradeId"]))
         elif not isDataOK:
             pass
+

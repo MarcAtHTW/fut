@@ -2,10 +2,12 @@ from time import sleep
 
 class Semaphor:
 
-    def __init__(self, fut_session):
+    def __init__(self, fut_session, slack_client, botName):
         self.isLocked                   = False
         self.whoLocked                  = ()
         self.session                    = fut_session
+        self.slack_client               = slack_client
+        self.botName                    = botName
 
 
     def search(self, tradeId):
@@ -26,6 +28,10 @@ class Semaphor:
         except Exception as error:
             print('{Debug} An error in the semaphore def search has occurred: ', error)
             self.isLocked = False
+
+            self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                       text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search): '+error,
+                                       username='pythonbot')
             return True
 
     def check(self, tradeId):
