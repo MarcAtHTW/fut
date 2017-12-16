@@ -28,9 +28,8 @@ class Semaphor:
         except Exception as error:
             print('{Debug} An error in the semaphore def search has occurred: ', error)
             self.isLocked = False
-
             self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
-                                       text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search): '+error,
+                                       text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search)',
                                        username='pythonbot')
             return True
 
