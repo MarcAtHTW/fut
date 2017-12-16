@@ -31,7 +31,6 @@ class TradeSearcher:
             if self.threadStatus.getCheckerStatus() is False:
                 self.error = True
             else:
-                # TODO @Basti in der Semaphore ist eine Session exception geflogen, somit kann die nicht mehr verwendet werden. Alle For Schleifen bis zu dieser laufen aber trotzdem weiter und der Vorgang bricht erst ab wenn alle assetIds durchgelaufen sind. Deshalb bricht dann irgendwann die erste While auch ab und alles startet neu.
                 for assetId in self.assetIds:
                     if self.error == True:
                         print('Break for(assetId in self.assetIds) due to self.error == True')
