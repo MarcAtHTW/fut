@@ -1,0 +1,2 @@
+Select ressourceId
+From fut_main2_playerstowatch

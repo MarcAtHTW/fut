@@ -1,6 +1,4 @@
 import pymysql as MySQLdb
-import sys
-from pymysql import cursors
 
 class Database:
 

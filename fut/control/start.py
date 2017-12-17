@@ -3,7 +3,6 @@ import threading
 
 from fut.model import dbConnector as DB
 from fut.model.threadSlackLogger import ThreadSlackLogger
-from fut.model.watchlist import Watchlist
 from fut.model.tradeSearcher import TradeSearcher
 from fut.model.tradeChecker import TradeChecker
 from fut.model.pinAutomater import PinAutomater
@@ -12,8 +11,6 @@ from fut.model.database import readPlayers
 from fut.model.semaphor import Semaphor
 from fut.model.threadStatus import ThreadStatus
 from random import shuffle
-
-# Slackimport
 from slackclient import SlackClient
 
 

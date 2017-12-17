@@ -9,7 +9,6 @@ class Semaphor:
         self.slack_client               = slack_client
         self.botName                    = botName
 
-
     def search(self, tradeId):
         while self.isLocked == True:
             if self.whoLocked == 'Searcher':
