@@ -3,7 +3,9 @@
 """
 fut.pin
 ~~~~~~~~~~~~~~~~~~~~~
+
 This module implements the fut's pinEvents methods.
+
 """
 
 import requests
@@ -13,9 +15,9 @@ import time
 from random import random
 from datetime import datetime
 
-from .config import headers
-from .urls import pin_url
-from .exceptions import FutError
+from fut.config import headers
+from fut.urls import pin_url
+from fut.exceptions import FutError
 
 
 class Pin(object):
