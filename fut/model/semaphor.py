@@ -26,11 +26,18 @@ class Semaphor:
             return False
         except Exception as error:
             print('{Debug} An error in the semaphore def search has occurred: ', error)
+            # TODO if error is null dann return False
             self.isLocked = False
-            self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
-                                       text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search)',
+            if str(error) == '' or str(error) == ' ':
+                self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                       text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search), (IF) Error is empty',
                                        username='pythonbot')
-            return True
+                return False
+            else:
+                self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                           text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Search), (ELSE) Error not empty',
+                                           username='pythonbot')
+                return True
 
     def check(self, tradeId):
         while self.isLocked == True:
@@ -50,4 +57,13 @@ class Semaphor:
         except Exception as error:
             print('{Debug} An error in the semaphore def check has occurred: ', error)
             self.isLocked = False
-            return True
+            if str(error) == '' or str(error) == ' ':
+                self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                           text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Check), (IF) Error is empty',
+                                           username='pythonbot')
+                return False
+            else:
+                self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                           text=self.botName + '<!channel|> EXCEPTION: Errors in Semaphore(Check), (ELSE) Error not empty',
+                                           username='pythonbot')
+                return True

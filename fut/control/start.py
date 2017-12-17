@@ -40,7 +40,7 @@ pinAutomater = PinAutomater(
 # )
 
 slack_client = SlackClient(credentials.slack['slack_token'])
-botName = 'Bot_Chris: '
+botName = 'Bot_Chris(ZD-Chris): '
 
 threadStatus = ThreadStatus()
 tSearcher = None
