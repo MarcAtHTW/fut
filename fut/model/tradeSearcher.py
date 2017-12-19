@@ -1,5 +1,6 @@
 from fut.model.enumeration import State
 import time
+import datetime
 from random import shuffle
 
 class TradeSearcher:
@@ -23,9 +24,9 @@ class TradeSearcher:
         self.slack_client = slack_client
 
     def startTradeSearcher(self):
-        print('### TradeSearcher started ###')
-        """ Clear Watchlist at startup. """
-        # self.clear()
+
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeSearcher started ###')
+
         while self.error is False:
             shuffle(self.assetIds)
             if self.threadStatus.getCheckerStatus() is False:
@@ -33,9 +34,8 @@ class TradeSearcher:
             else:
                 for assetId in self.assetIds:
                     if self.error == True:
-                        print('Break for(assetId in self.assetIds) due to self.error == True')
                         break
-                    print('(Debug): Current ressource ID: {}'.format(assetId))
+                    print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeSearcher: Current ressource ID: {}'.format(assetId))
                     self.assetId = assetId
                     """ Search Trades for current assetId"""
                     self.searchAsset(self.minExpireTimeInMinutes, self.maxExpireTimeinMinutes, assetId)
@@ -52,7 +52,6 @@ class TradeSearcher:
         :return:
         """
         self.currentState = State.search
-        print(self.currentState)
 
         minExpireTimeInSeconds = minExpireTimeInMinutes * 60
         maxExpireTimeInSeconds = maxExpireTimeinMinutes * 60
@@ -66,15 +65,13 @@ class TradeSearcher:
             items_resultset = self.session.searchAuctions(ctype='player', assetId=assetId, start=currentPage,
                                                           page_size=25)
         except Exception as error:
-            print('{Debug} An error in the tradeSearcher has occurred: search failed: ', error)
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeSearcher has occurred: search failed: ', error)
             self.error = True
 
-        print('{} From Page {}'.format(self.currentState, currentPage))
         self.currentState = State.chooseTrades
         if len(items_resultset) > 0:
             for item in items_resultset:
                 if self.error == True:
-                    print('Break for(item in resultset) due to self.error == True')
                     break
                 elif item['expires'] > minExpireTimeInSeconds and item[
                     'expires'] < maxExpireTimeInSeconds and tradeCounter <= 5:
@@ -84,10 +81,6 @@ class TradeSearcher:
                     noNewTradeCounter += 1
                 if tradeCounter >= 5 or noNewTradeCounter >= 10:
                     break
-            print('Break due to tradeCounter: ', tradeCounter)
-            print('Break due to noNewTradeCounter: ', noNewTradeCounter)
-        else:
-            print('#### No trades in search result')
 
 
     def getIdsFromPage(self, page):
@@ -108,14 +101,11 @@ class TradeSearcher:
         try:
             self.length = len(self.session.watchlist())
         except Exception as error:
-            print('{Debug} An error in the tradeSearcher has occurred: len watchlist failed: ', error)
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeSearcher has occurred: len watchlist failed: ', error)
             self.error = True
         self.currentState = State.watchTrades
-
-        print('trades on watchlist: ', self.length)
-
         self.loadTradeIdsFromLiveWatchlist()
-        # TODO Was ist wenn TradeId immer auf der Watchlist ist(TradeIds) und die While übersprungen wird? (Bug zur Laufzeit erkannt TradeCounter = 5 obwohl nichts auf die Watchlist gesetzt wurde)
+
         while tradeId not in self.tradeIDs and self.error is False:
             if self.threadStatus.getCheckerStatus() is False:
                 self.error = True
@@ -123,19 +113,17 @@ class TradeSearcher:
                 if self.length < self.watchlistSize:
                     try:
                         self.error = self.semaphore.search(int(tradeId))
-                        #self.session.sendToWatchlist()
-                        print("Player with TradeID {} added to Watchlist.".format(tradeId))
+                        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeSearcher: Player with TradeID {} added to Watchlist.'.format(tradeId))
                     except Exception as error:
-                        print('{Debug} An error in the tradeSearcher while-loop has occurred: ', error)
+                        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeSearcher while-loop has occurred: ', error)
                         self.error = True
                     break
                 else:
-                    print('No free slot on Watchlist. Waiting for 2 sec.')
                     time.sleep(2)
                     try:
                         self.length = len(self.session.watchlist())
                     except Exception as error:
-                        print('{Debug} An error in the tradeSearcher has occurred: No free slot, update length watchlist: ',
+                        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeSearcher has occurred: No free slot, update length watchlist: ',
                               error)
                         self.error = True
 
@@ -149,52 +137,9 @@ class TradeSearcher:
         try:
             resultset = self.session.watchlist()
         except Exception as error:
-            print('{Debug} An error in the tradeSearcher has occurred: get watchlist: ', error)
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeSearcher has occurred: get watchlist: ', error)
             self.error = True
         for item in resultset:
             tradeIds.append(item['tradeId'])
         self.tradeIDs = tradeIds
         return self.tradeIDs
-
-    def clear(self, listTradeIds=None):
-        self.currentState = State.delete
-        print(self.currentState)
-        """ Clears the current watchlist.
-        :type listTradeIds: list
-        :param listTradeIds: List of tradeIDs. Can be used to manually delete items from watchlist.
-        """
-        if listTradeIds == None:
-            self.loadTradeIdsFromLiveWatchlist()
-            lenItemsOnWatchlist = len(self.tradeIDs)
-            if lenItemsOnWatchlist > 0:
-                print("Deleting %s items from Watchlist." % lenItemsOnWatchlist)
-                i = 0
-                for tradeID in self.tradeIDs:
-                    i += 1
-                    try:
-                        self.session.watchlistDelete(tradeID)
-                        print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsOnWatchlist,
-                                                                                          tradeID))
-                    except Exception as error:
-                        print(
-                            '(Debug) An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: {}'.format(
-                                tradeID, error))
-                        self.error = True
-                self.tradeIDs = []
-        elif listTradeIds != None:
-            lenItemsTradeIdlist = len(listTradeIds)
-            print("Deleting {} items from Watchlist.".format(lenItemsTradeIdlist))
-            i = 0
-            for tradeID in listTradeIds:
-                i += 1
-                try:
-                    self.session.watchlistDelete(tradeID)
-                    print("({}/{}) Player with TradeID {} deleted from Watchlist.".format(i, lenItemsTradeIdlist,
-                                                                                          tradeID))
-                except Exception as error:
-                    print(
-                        'Debug An error in the tradeSearcher has occurred: delete tradeId {} from watchlist: {}'.format(
-                            tradeID, error))
-                    self.error = True
-            self.tradeIDs = []
-        self.currentState = State.pending

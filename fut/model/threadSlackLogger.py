@@ -1,4 +1,5 @@
 import time
+import datetime
 
 class ThreadSlackLogger:
 
@@ -12,7 +13,7 @@ class ThreadSlackLogger:
 
 
     def ckeckThreads(self):
-        print('### ThreadSlackLogger started ###')
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### ThreadSlackLogger started ###')
 
         andErrorHasOccured = False
         while andErrorHasOccured is False:
@@ -21,7 +22,7 @@ class ThreadSlackLogger:
                 self.allThreadsCounter += 1
                 time.sleep(60)
                 if self.allThreadsCounter == 3:
-                    print('SlackLogger: all Bots are not alive')
+                    print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] SlackLogger: all Bots are not alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
                                           text=self.botName+'<!channel|> IMPORTANT: No thread is running!!!.',
                                           username='pythonbot')
@@ -35,7 +36,7 @@ class ThreadSlackLogger:
                 self.oneThreadCounter += 1
                 time.sleep(60)
                 if self.oneThreadCounter == 3:
-                    print('SlackLogger: all Bots are not alive')
+                    print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] SlackLogger: all Bots are not alive')
                     self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
                                                text=self.botName + '<!channel|> IMPORTANT: One Thread is running!!! Checker: '+self.threadChecker+', Searcher: '+self.threadSearcher,
                                                username='pythonbot')

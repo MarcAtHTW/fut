@@ -12,6 +12,8 @@ from fut.model.semaphor import Semaphor
 from fut.model.threadStatus import ThreadStatus
 from random import shuffle
 from slackclient import SlackClient
+import time
+import datetime
 
 
 credentials = Credentials()
@@ -114,7 +116,7 @@ while True:
         go = False
 
     if go is True:
-        print('uups something happened, we will just restart the threads, lol')
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] Start: uups something happened, we will just restart the threads, lol')
         session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
                                                      credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
                                                      maxExpireTimeInMinutes, threadStatus, slack_client, botName)

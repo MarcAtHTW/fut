@@ -1,3 +1,6 @@
+import time
+import datetime
+
 class ThreadStatus:
 
     def __init__(self):
@@ -14,8 +17,8 @@ class ThreadStatus:
 
     def setSearcherStatus(self, status):
         self.isSearcherAlive = status
-        print('ThreadStatus: Searcher-Status changed to: {}'.format(self.isSearcherAlive))
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ThreadStatus: Searcher-Status changed to: {}'.format(self.isSearcherAlive))
 
     def setCheckerStatus(self, status):
         self.isCheckerAlive = status
-        print('ThreadStatus: Checker-Status changed to: {}'.format(self.isCheckerAlive))
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ThreadStatus: Checker-Status changed to: {}'.format(self.isCheckerAlive))

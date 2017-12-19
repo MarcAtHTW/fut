@@ -1,5 +1,6 @@
 from fut.model.enumeration import State
 import time
+import datetime
 
 class TradeChecker:
     def __init__(self, fut_session, semaphore, db, threadStatus, slack_client):
@@ -21,38 +22,32 @@ class TradeChecker:
 # wenn expired dann def SaveToDB
     def startTradeChecker(self):
 
-        print('### TradeChecker started ###')
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeChecker started ###')
 
         while self.anErrorHasOccured is False:
-            print('TradeChecker: Status vom Searcher is: {}'.format(self.threadStatus.getSearcherStatus()))
             if self.threadStatus.getSearcherStatus() == False:
                 self.anErrorHasOccured = True
             else:
                 try:
                     lengthWatchlist = len(self.session.watchlist())
-                    print('TradeChecker: lenght watchlist ist: ' + str(lengthWatchlist))
                 except Exception as error:
-                    print('{Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
+                    print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
                     self.anErrorHasOccured = True
                 # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
                 if lengthWatchlist == 0:
-                    print('TradeChecker: Kein Item auf der Watchlist, Sleep eine Minute')
                     time.sleep(60)
                 else:
                     try:
                         itemOfWatchlist = self.session.watchlist()[0]
                         if itemOfWatchlist['expires'] != -1:
-                            print('TradeChecker: Sleep expireTime: ' + str(itemOfWatchlist['expires']))
                             time.sleep(itemOfWatchlist['expires'])
 
                         elif itemOfWatchlist['expires'] == -1:
-                            print('TradeChecker: Trade mit der ID: ( ' + str(itemOfWatchlist['tradeId']) + ' ) auf Watchlist löschen')
+                            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade mit der ID: ' + str(itemOfWatchlist['tradeId']) + ' von Watchlist löschen')
                             self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
-                            #self.session.watchlistDelete(itemOfWatchlist['tradeId'])
-                            print('TradeChecker: Datensatz an DB-Methode senden')
                             self.saveToDB(itemOfWatchlist)
                     except Exception as error:
-                        print('{Debug} An error in the tradeChecker while-loop has occurred: ', error)
+                        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker while-loop has occurred: ', error)
                         self.anErrorHasOccured = True
         self.threadStatus.setCheckerStatus(False)
 
@@ -143,7 +138,7 @@ class TradeChecker:
             isDataOK = True
         except IndexError as e:
             isDataOK = False
-            print("Index Error in database.py: {}".format(e))
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] Index Error in database.py: {}'.format(e))
 
         if isDataOK:
             sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
@@ -154,7 +149,7 @@ class TradeChecker:
 
             # Einfügung der Liste x in die Datenbank
             self.db.insert(sql, sqlItem)
-            print('trade {} saved to db'.format(item["tradeId"]))
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade {} saved to db'.format(item["tradeId"]))
         elif not isDataOK:
             pass
 

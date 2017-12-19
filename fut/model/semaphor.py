@@ -1,4 +1,6 @@
 from time import sleep
+import time
+import datetime
 
 class Semaphor:
 
@@ -14,7 +16,6 @@ class Semaphor:
             if self.whoLocked == 'Searcher':
                 self.isLocked = False
             else:
-                print('Semaphore: (Searcher): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
         self.isLocked = True
@@ -25,8 +26,8 @@ class Semaphor:
             self.isLocked = False
             return False
         except Exception as error:
-            print('{Debug} An error in the semaphore def search has occurred: ', error)
-            # TODO if error is null dann return False
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the semaphore def search has occurred: ', error)
+
             self.isLocked = False
             if str(error) == '' or str(error) == ' ':
                 return False
@@ -38,7 +39,6 @@ class Semaphor:
             if self.whoLocked == 'Checker':
                 self.isLocked = False
             else:
-                print('Semaphore: (Checker): isLocked == True ! von: {}'.format(self.whoLocked))
                 sleep(1)
 
         self.isLocked = True
@@ -49,7 +49,7 @@ class Semaphor:
             self.isLocked = False
             return False
         except Exception as error:
-            print('{Debug} An error in the semaphore def check has occurred: ', error)
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the semaphore def check has occurred: ', error)
             self.isLocked = False
             if str(error) == '' or str(error) == ' ':
                 return False
