@@ -109,7 +109,6 @@ def loadPlayerDatabase(coreobject, connection):
 
 """Speicherung der Watchlist in der Datenbank mit allen Attributen"""
 def succesTradesFromWatchlist(coreobject, connection):
-
     currentBidList = []
     assetIdList = []
     buyNowPriceList = []

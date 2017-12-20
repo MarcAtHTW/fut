@@ -7,6 +7,7 @@ class Credentials:
         self.ea             = {}
         self.db             = {}
         self.mail           = {}
+        self.slack          = {}
         self.loadCredentialsFromMyCredentials()
 
 
@@ -30,7 +31,8 @@ class Credentials:
             "MAIL_Host": config.get("configuration-MAIL-IMAP", "host"),
             "MAIL_User": config.get("configuration-MAIL-IMAP", "user"),
             "MAIL_Pass": config.get("configuration-MAIL-IMAP", "pass"),
-            "MAIL_Port": config.get("configuration-MAIL-IMAP", "port")
+            "MAIL_Port": config.get("configuration-MAIL-IMAP", "port"),
+            "SLACK_TOKEN": config.get("configuration - SLACK", "slack_token")
         }
 
         self.db['host'] = credentials['DB_Host']
@@ -46,3 +48,5 @@ class Credentials:
         self.mail['user'] = credentials['MAIL_User']
         self.mail['pass'] = credentials['MAIL_Pass']
         self.mail['port'] = credentials['MAIL_Port']
+
+        self.slack['slack_token'] = credentials['SLACK_TOKEN']

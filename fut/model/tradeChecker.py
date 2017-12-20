@@ -1,40 +1,56 @@
 from fut.model.enumeration import State
 import time
+import datetime
 
 class TradeChecker:
-    def __init__(self, fut_session, db):
-        self.session        = fut_session
-        self.db             = db
-        self.length         = len(fut_session.watchlist())
-        self.expire         = {}
-        self.currentState   = State.wait
-        self.watchlist      = fut_session.watchlist()
+    def __init__(self, fut_session, semaphore, db, threadStatus, slack_client):
+        self.session            = fut_session
+        self.semaphore          = semaphore
+        self.db                 = db
+        self.length             = len(fut_session.watchlist())
+        self.expire             = {}
+        self.currentState       = State.wait
+        self.watchlist          = fut_session.watchlist()
+        self.anErrorHasOccured  = False
+        self.threadStatus       = threadStatus
+        self.slack_client       = slack_client
+
 
 
 
 # watchliste abrufen und items nach abgelaufenen Objekten suchen. (expires ist dann auf -1)
 # wenn expired dann def SaveToDB
     def startTradeChecker(self):
-        anErrorIsReached = False
-        print('### TradeChecker started ###')
 
-        while anErrorIsReached is False:
-            lengthWatchlist = len(self.session.watchlist())
-            # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
-            if lengthWatchlist == 0:
-                print('Kein Item auf der Watchlist, Sleep eine Minute')
-                time.sleep(60)
+        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeChecker started ###')
+
+        while self.anErrorHasOccured is False:
+            if self.threadStatus.getSearcherStatus() == False:
+                self.anErrorHasOccured = True
             else:
-                itemOfWatchlist = self.session.watchlist()[0]
+                try:
+                    lengthWatchlist = len(self.session.watchlist())
+                except Exception as error:
+                    print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
+                    self.anErrorHasOccured = True
+                # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
+                if lengthWatchlist == 0:
+                    time.sleep(60)
+                else:
+                    try:
+                        itemOfWatchlist = self.session.watchlist()[0]
+                        if itemOfWatchlist['expires'] != -1:
+                            time.sleep(itemOfWatchlist['expires'])
 
-                if itemOfWatchlist['expires'] != -1:
-                    print('Sleep expireTime: '+ str(itemOfWatchlist['expires']))
-                    time.sleep(itemOfWatchlist['expires'])
+                        elif itemOfWatchlist['expires'] == -1:
+                            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade mit der ID: ' + str(itemOfWatchlist['tradeId']) + ' von Watchlist löschen')
+                            self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
+                            self.saveToDB(itemOfWatchlist)
+                    except Exception as error:
+                        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker while-loop has occurred: ', error)
+                        self.anErrorHasOccured = True
+        self.threadStatus.setCheckerStatus(False)
 
-                elif itemOfWatchlist['expires'] == -1:
-                    print('Datensatz zur DB senden')
-                    self.session.watchlistDelete(itemOfWatchlist['tradeId'])
-                    self.saveToDB(itemOfWatchlist)
 
 
 # SafeToDB, Daten des Trades abgreifen und in die Datenbank speichern
@@ -122,7 +138,7 @@ class TradeChecker:
             isDataOK = True
         except IndexError as e:
             isDataOK = False
-            print("Index Error in database.py: {}".format(e))
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] Index Error in database.py: {}'.format(e))
 
         if isDataOK:
             sql = "insert into fut_watchlist (tradeId, buyNowPrice, tradeState, bidState, startingBid, id, offers, currentBid, expires, sellerEstablished, sellerId, sellerName, watched, time_stamp, " \
@@ -133,6 +149,7 @@ class TradeChecker:
 
             # Einfügung der Liste x in die Datenbank
             self.db.insert(sql, sqlItem)
-            print('trade {} saved to db'.format(item["tradeId"]))
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade {} saved to db'.format(item["tradeId"]))
         elif not isDataOK:
             pass
+

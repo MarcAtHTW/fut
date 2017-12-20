@@ -3,3 +3,5 @@ xmltodict
 pyotp
 bs4
 python-anticaptcha==0.1.1
+pymysql
+SlackClient
