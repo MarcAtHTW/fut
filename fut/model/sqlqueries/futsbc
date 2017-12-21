@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS fut_SBC (
+  setId INT(5) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  categoryId INT(2) DEFAULT NULL,
+  description VARCHAR(100) DEFAULT NULL,
+  repeatable VARCHAR(10) DEFAULT NULL,
+  challengesCompletedCount INT(2) NOT NULL,
+  endTime INT(10) DEFAULT NULL,
+  isUntradeable VARCHAR(10) DEFAULT NULL,
+  loan INT(3) DEFAULT NULL,
+  assetId INT(10) DEFAULT NULL,
+  Id INT(15) DEFAULT NULL,
+  creation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (setId,name)
+)

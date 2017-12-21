@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS fut_SBC_categories (
+  id INT(5) NOT NULL,
+  name VARCHAR(30) NOT NULL,
+  creation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id,name)
+)
