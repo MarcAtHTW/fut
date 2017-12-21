@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS fut_packs (
   id INT(5) NOT NULL,
-  description VARCHAR(100) DEFAULT NULL,
   coins INT(10) DEFAULT NULL,
   points INT(10) DEFAULT NULL,
   quantity INT(3) DEFAULT NULL,
@@ -14,5 +13,6 @@ CREATE TABLE IF NOT EXISTS fut_packs (
   start INT(12) DEFAULT NULL,
   ends INT(12) DEFAULT NULL,
   creation_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (id) references fut_desc(id)
 )
