@@ -8,15 +8,7 @@ class CheckPacks:
         self.db = db
 
 
-    def lookForPacks(self):
-        items = self.session.packs()
-        print(items)
-        print("SEL")
-        print(items["purchase"][1]["id"])
-      #  self.saveToDB(items)
-
-
-    def packsWithoutStartEndinDB(self, db):
+    def packsInDb(self, db):
 
         items = self.session.packs()
 
