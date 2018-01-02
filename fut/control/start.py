@@ -92,8 +92,8 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     semaphore = Semaphor(sess, slack_client, nameBot)
     """ Objekterzeugung tradeSearcher und tradeChecker """
     tradeSearcher = TradeSearcher(sess, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes,
-                                  threadStatus, slack_client)
-    tradeChecker = TradeChecker(sess, semaphore, db, threadStatus, slack_client)
+                                  threadStatus, slack_client, nameBot)
+    tradeChecker = TradeChecker(sess, semaphore, db, threadStatus, slack_client, nameBot)
 
 
     tSearch = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)

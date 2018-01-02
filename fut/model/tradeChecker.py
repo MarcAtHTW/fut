@@ -3,7 +3,7 @@ import time
 import datetime
 
 class TradeChecker:
-    def __init__(self, fut_session, semaphore, db, threadStatus, slack_client):
+    def __init__(self, fut_session, semaphore, db, threadStatus, slack_client, botName):
         self.session            = fut_session
         self.semaphore          = semaphore
         self.db                 = db
@@ -14,6 +14,7 @@ class TradeChecker:
         self.anErrorHasOccured  = False
         self.threadStatus       = threadStatus
         self.slack_client       = slack_client
+        self.botName            = botName
 
 
 
