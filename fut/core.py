@@ -280,7 +280,10 @@ def playstyles(year=2018, timeout=timeout):
 
 
 class Core(object):
-    def __init__(self, email, passwd, secret_answer, platform='ps4', code=None, totp=None, sms=False, emulate=None, debug=False, cookies=cookies_file, token=token_file, timeout=timeout, delay=delay, proxies=None, anticaptcha_client_key=None):
+    def __init__(self,slackClient,botName, email, passwd, secret_answer, platform='ps4', code=None, totp=None, sms=False, emulate=None, debug=False, cookies=cookies_file, token=token_file, timeout=timeout, delay=delay, proxies=None, anticaptcha_client_key=None):
+        self.slack_client = slackClient
+        self.botName = botName
+
         self.credits = 0
         self.duplicates = []
         self.cookies_file = cookies  # TODO: map self.cookies to requests.Session.cookies?
@@ -617,6 +620,9 @@ class Core(object):
                             raise
 
             else:
+                self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                           text=self.botName + '<!channel|> IMPORTANT: Captcha aufgetreten, bitte Online einloggen!!!.',
+                                           username='pythonbot')
                 raise Captcha(code=rc.get('code'), string=rc.get('string'), reason=rc.get('reason'))
         if rc.get('string') != 'Already answered question':
             params = {'answer': secret_answer_hash}

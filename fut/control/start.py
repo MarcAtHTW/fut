@@ -87,7 +87,7 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     :param threadStatus:
     :return: session, tSearcher, tChecker
     """
-    sess = futCore.Core(mail, passw, secr, debug=True)
+    sess = futCore.Core(slack_client, nameBot, mail, passw, secr, debug=True)
 
     semaphore = Semaphor(sess, slack_client, nameBot)
     """ Objekterzeugung tradeSearcher und tradeChecker """
