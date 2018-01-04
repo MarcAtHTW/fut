@@ -17,7 +17,7 @@ class Database:
                 # print("Daten eingefuegt")
             self.connection.commit()
         except (MySQLdb.Error, MySQLdb.Warning) as err3:
-            print(err3)
+            # print(err3)
             self.connection.rollback()
 
     def query(self, query, var=None):

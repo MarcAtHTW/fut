@@ -2,6 +2,8 @@ import fut
 import threading
 
 from fut.model import dbConnector as DB
+from fut.model.checkPacks import CheckPacks
+from fut.model.checkSBC import CheckSBC
 from fut.model.threadSlackLogger import ThreadSlackLogger
 from fut.model.tradeSearcher import TradeSearcher
 from fut.model.tradeChecker import TradeChecker
@@ -43,12 +45,16 @@ pinAutomater = PinAutomater(
 
 slack_client = SlackClient(credentials.slack['slack_token'])
 botName = 'Bot_Chris: '
+#Wenn diese Variable auf True ist werden Packs und SBCs bei dem Bot geladen.
+isPackSearcher = False
 
 threadStatus = ThreadStatus()
 tSearcher = None
 tChecker = None
 session = None
 tSlacker = None
+tPacks = None
+tSBCs = None
 
 
 """create fut_players table"""
@@ -129,6 +135,14 @@ while True:
             threadSlackLogger = ThreadSlackLogger(tChecker, tSearcher, slack_client, botName)
             tSlacker = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
             tSlacker.start()
+        if (tPacks is None):
+            checkPacks = CheckPacks(session, db, isPackSearcher)
+            tPacks = threading.Thread(name='packer', target=checkPacks.packsInFUT())
+            tPacks.start()
+        if (tSBCs is None):
+            checkSBC = CheckSBC(session, db, isPackSearcher)
+            tSBCs = threading.Thread(name='SBCs', target=checkSBC.sbcsInFut())
+            tSBCs.start()
 
 # print(fut.watchlist())
 

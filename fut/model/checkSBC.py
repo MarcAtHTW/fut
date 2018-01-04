@@ -1,18 +1,33 @@
-
+import time
+import datetime
 
 class CheckSBC:
 
-    def __init__(self, fut_session, db):
+    def __init__(self, fut_session, db, isPackSearcher):
         self.session = fut_session
         self.db = db
+        self.isPackSearcher = isPackSearcher
 
+    def sbcsInFut(self):
+        print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+              '] ### CheckSBCs started ###')
 
-    def lookForSBCs(self):
-        items = self.session.sbsSets()
+        while self.isPackSearcher == True:
+            try:
 
-    def categoriesSBCtoDB(self,db):
+                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                      '] CheckSBCs: SBCs werden abgerufen.')
 
-        items = self.session.sbsSets()
+                items = self.session.sbsSets()
+                self.categoriesSBCtoDB(items)
+                self.SBCtoDB(items)
+                time.sleep(1800)
+            except Exception as error:
+                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                      '] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
+                time.sleep(100)
+
+    def categoriesSBCtoDB(self, items):
 
         categoriesList = []
         nameList = []
@@ -30,12 +45,10 @@ class CheckSBC:
         sql = "insert into fut_SBC_categories (id, name) values (%s, %s)"
 
         for t in x:
-            db.insert(sql, t)
+            self.db.insert(sql, t)
 
 
-    def SBCtoDB(self, db):
-
-        items = self.session.sbsSets()
+    def SBCtoDB(self, items):
 
         setIdList = []
         nameList = []
@@ -75,14 +88,6 @@ class CheckSBC:
                     awardsisUntradeableList.append(b["isUntradeable"])
                     awardsloanList.append(b["loan"])
 
-                #if "itemData" in a:
- #               if "itemData" in y["sets"]:
- #                   itemDataAssetIdList.append(a["itemData"]["assetId"])
-                #else:
-                #    itemDataAssetIdList.append("0")
-
- #       print(itemDataAssetIdList)
-
         x = list(zip(setIdList,
         nameList,
         categoryIdList,
@@ -92,14 +97,13 @@ class CheckSBC:
         endTimeList,
         awardsisUntradeableList,
         awardsloanList,
-        itemDataAssetIdList,
         awardsIdList))
 
         sql = "insert into fut_SBC (setId, name, categoryId, description, repeatable, challengesCompletedCount, endTime," \
-              "isUntradeable, loan, assetId, Id ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+              "isUntradeable, loan, Id) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         for t in x:
-            db.insert(sql, t)
+            self.db.insert(sql, t)
 
-
-
+        print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+              '] CheckSBCs: SBCs wurden in DB gespeichert.')
