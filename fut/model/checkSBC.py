@@ -4,6 +4,14 @@ import datetime
 class CheckSBC:
 
     def __init__(self, fut_session, db, isPackSearcher, threadStatus):
+        """
+        Construktor of the tradecheacker.
+        :param fut_session: valid fut session
+        :param db: for saving SBC's
+        :param isPackSearcher: boolean to handle the entrance
+        :param threadStatus: class to controll the threads
+        """
+
         self.session = fut_session
         self.db = db
         self.isPackSearcher = isPackSearcher
@@ -12,6 +20,10 @@ class CheckSBC:
         self.timestamp = 0
 
     def sbcsInFut(self):
+        """
+        This method loads current fut SBC's and stores this to DB.        
+        """
+
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
               '] ### CheckSBCs started ###')
 
@@ -21,7 +33,7 @@ class CheckSBC:
                 try:
                     if int(time.time()) >= self.timestamp:
                         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-                              '] CheckSBCs: SBCs werden abgerufen.')
+                              '] CheckSBCs: SBCs will be loaded.')
                         items = self.session.sbsSets()
                         self.categoriesSBCtoDB(items)
                         self.SBCtoDB(items)
@@ -35,6 +47,12 @@ class CheckSBC:
                 self.anErrorHasOccured = True
 
     def categoriesSBCtoDB(self, items):
+        """
+        Saves only the categorie data to DB.
+        !! Important, the order of which the attributes are appended to the list is crucial !!
+        :param items: list of items
+        :return:
+        """
 
         categoriesList = []
         nameList = []
@@ -56,6 +74,12 @@ class CheckSBC:
 
 
     def SBCtoDB(self, items):
+        """
+        Saves the SBC data to DB.
+        !! Important, the order of which the attributes are appended to the list is crucial !!
+        :param items: list of items
+        :return:
+        """
 
         setIdList = []
         nameList = []
@@ -113,4 +137,4 @@ class CheckSBC:
             self.db.insert(sql, t)
 
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-              '] CheckSBCs: SBCs wurden in DB gespeichert.')
+              '] CheckSBCs: SBCs were stored in DB.')

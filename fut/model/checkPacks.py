@@ -4,6 +4,14 @@ import datetime
 class CheckPacks:
 
     def __init__(self, fut_session, db, isPackSearcher, threadStatus):
+        """
+        Construktor of the tradecheacker.
+        :param fut_session: valid fut session
+        :param db: for saving SBC's
+        :param isPackSearcher: boolean to handle the entrance
+        :param threadStatus: class to controll the threads
+        """
+
         self.session = fut_session
         self.db = db
         self.isPackSearcher = isPackSearcher
@@ -13,6 +21,10 @@ class CheckPacks:
 
 
     def packsInFUT(self):
+        """
+        This method loads current fut packs and stores this to DB.        
+        """
+
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
               '] ### CheckPacks started ###')
         time.sleep(10)
@@ -35,6 +47,12 @@ class CheckPacks:
                 self.anErrorHasOccured = True
 
     def savePacksInDB(self, items):
+        """
+        Saves packs to DB.
+        !! Important, the order of which the attributes are appended to the list is crucial !!
+        :param items: list of items
+        :return:
+        """
 
         idList = []
         descriptionList = []
@@ -122,7 +140,7 @@ class CheckPacks:
             self.db.insert(sql_main, d)
 
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-              '] CheckPacks: Packs wurden in DB gespeichert.')
+              '] CheckPacks: Packs were stored in DB.')
 
 
 

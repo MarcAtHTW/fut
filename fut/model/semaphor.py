@@ -6,7 +6,7 @@ class Semaphor:
 
     def __init__(self, fut_session, slack_client, botName):
         """
-        Construktor of the tradesearcher.
+        Construktor of the semaphore.
         :param fut_session: valid fut session
         :param slack_client: for logging
         :param botName: for logging

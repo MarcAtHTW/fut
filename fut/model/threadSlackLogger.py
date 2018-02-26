@@ -4,15 +4,27 @@ import datetime
 class ThreadSlackLogger:
 
     def __init__(self, tCheck, tSearch, slack_client, botName):
+        """
+        Construktor of the threadslacklogger.
+        :param tCheck: thread tradeChecker
+        :param tSearch: thread tradeSearcher
+        :param slack_client: for logging
+        :param botName: for logging
+        """
         self.threadChecker                  = tCheck
         self.threadSearcher                 = tSearch
         self.slack_client                   = slack_client
         self.botName                        = botName
         self.allThreadsCounter              = 0
-        self.oneThreadCounter                 = 0
+        self.oneThreadCounter               = 0
 
 
     def ckeckThreads(self):
+        """
+        not in use: this method should monitor the two threads to send slack messages after an error.
+        Functionality was ensured in another way.
+        """
+
         print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### ThreadSlackLogger started ###')
 
         andErrorHasOccured = False

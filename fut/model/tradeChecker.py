@@ -5,7 +5,7 @@ import datetime
 class TradeChecker:
     def __init__(self, fut_session, semaphore, db, threadStatus, slack_client, botName):
         """
-        Construktor of the tradesearcher.
+        Construktor of the tradecheacker.
         :param fut_session: valid fut session
         :param semaphore: semaphore to control if the watchlist is locked by the other thread
         :param threadStatus: class to controll the threads
@@ -29,9 +29,8 @@ class TradeChecker:
 
 
     def startTradeChecker(self):
-
         """
-        This method looks for firt trade on the watchlist.
+        This method looks for first trade on the watchlist.
         If the expiretime is -1 the trade will be handed over to def: saveToDB and the trade will be deleted on the watchlist.
         If the expiretime is not -1 the bot will sleep as long as the expiretime is.        
         """
