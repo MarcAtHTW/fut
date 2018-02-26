@@ -3,29 +3,36 @@ import datetime
 
 class CheckSBC:
 
-    def __init__(self, fut_session, db, isPackSearcher):
+    def __init__(self, fut_session, db, isPackSearcher, threadStatus):
         self.session = fut_session
         self.db = db
         self.isPackSearcher = isPackSearcher
+        self.threadStatus = threadStatus
+        self.anErrorHasOccured = False
+        self.timestamp = 0
 
     def sbcsInFut(self):
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
               '] ### CheckSBCs started ###')
 
-        while self.isPackSearcher == True:
-            try:
+        while self.anErrorHasOccured is False:
+            if self.threadStatus.getCheckerStatus() is True and self.threadStatus.getSearcherStatus() is True:
 
-                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-                      '] CheckSBCs: SBCs werden abgerufen.')
+                try:
+                    if int(time.time()) >= self.timestamp:
+                        print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                              '] CheckSBCs: SBCs werden abgerufen.')
+                        items = self.session.sbsSets()
+                        self.categoriesSBCtoDB(items)
+                        self.SBCtoDB(items)
+                        self.timestamp = int(time.time()) + 1800
 
-                items = self.session.sbsSets()
-                self.categoriesSBCtoDB(items)
-                self.SBCtoDB(items)
-                time.sleep(1800)
-            except Exception as error:
-                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-                      '] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
-                time.sleep(100)
+                except Exception as error:
+                    print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                          '] {Debug} An error in the CheckSBCs has occurred: ', error)
+
+            else:
+                self.anErrorHasOccured = True
 
     def categoriesSBCtoDB(self, items):
 

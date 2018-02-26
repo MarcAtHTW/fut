@@ -3,29 +3,36 @@ import datetime
 
 class CheckPacks:
 
-    def __init__(self, fut_session, db, isPackSearcher):
+    def __init__(self, fut_session, db, isPackSearcher, threadStatus):
         self.session = fut_session
         self.db = db
         self.isPackSearcher = isPackSearcher
+        self.anErrorHasOccured = False
+        self.threadStatus = threadStatus
+        self.timestamp = 0
 
 
     def packsInFUT(self):
         print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
               '] ### CheckPacks started ###')
+        time.sleep(10)
+        while self.anErrorHasOccured is False:
+            if self.threadStatus.getCheckerStatus() is True and self.threadStatus.getSearcherStatus() is True:
 
-        while self.isPackSearcher == True:
-            try:
+                try:
+                    if int(time.time()) >= self.timestamp:
+                        print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                              '] CheckPacks: Packs werden abgerufen.')
+                        items = self.session.packs()
+                        self.savePacksInDB(items)
+                        self.timestamp = int(time.time()) + 1800
 
-                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-                      '] CheckPacks: Packs werden abgerufen.')
+                except Exception as error:
+                    print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                          '] {Debug} An error in the CheckPacks has occurred: ', error)
 
-                items = self.session.packs()
-                self.savePacksInDB(items)
-                time.sleep(1800)
-            except Exception as error:
-                print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
-                      '] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
-                time.sleep(100)
+            else:
+                self.anErrorHasOccured = True
 
     def savePacksInDB(self, items):
 

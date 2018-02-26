@@ -24,13 +24,14 @@ class TradeChecker:
     def startTradeChecker(self):
 
         print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeChecker started ###')
-
+        time.sleep(15)
         while self.anErrorHasOccured is False:
             if self.threadStatus.getSearcherStatus() == False:
                 self.anErrorHasOccured = True
             else:
                 try:
                     lengthWatchlist = len(self.session.watchlist())
+
                 except Exception as error:
                     print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
                     self.anErrorHasOccured = True
@@ -40,12 +41,14 @@ class TradeChecker:
                 else:
                     try:
                         itemOfWatchlist = self.session.watchlist()[0]
+
                         if itemOfWatchlist['expires'] != -1:
                             time.sleep(itemOfWatchlist['expires'])
 
                         elif itemOfWatchlist['expires'] == -1:
                             print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade mit der ID: ' + str(itemOfWatchlist['tradeId']) + ' von Watchlist löschen')
                             self.anErrorHasOccured = self.semaphore.check(itemOfWatchlist['tradeId'])
+
                             self.saveToDB(itemOfWatchlist)
                     except Exception as error:
                         print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker while-loop has occurred: ', error)

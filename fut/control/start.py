@@ -4,7 +4,6 @@ import threading
 from fut.model import dbConnector as DB
 from fut.model.checkPacks import CheckPacks
 from fut.model.checkSBC import CheckSBC
-from fut.model.threadSlackLogger import ThreadSlackLogger
 from fut.model.tradeSearcher import TradeSearcher
 from fut.model.tradeChecker import TradeChecker
 from fut.model.pinAutomater import PinAutomater
@@ -44,7 +43,7 @@ pinAutomater = PinAutomater(
 # )
 
 slack_client = SlackClient(credentials.slack['slack_token'])
-botName = 'Bot_Chris: '
+botName = 'Bot_3(ZD-Auner): '
 #Wenn diese Variable auf True ist werden Packs und SBCs bei dem Bot geladen.
 isPackSearcher = False
 
@@ -114,35 +113,55 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
 
 """ Start der Threads """
 while True:
-    if (tSearcher is None and tChecker is None):
-        go = True
-    elif (tSearcher.isAlive() is False and tChecker.isAlive() is False):
-        go = True
+    if isPackSearcher is False:
+        if tSearcher is None and tChecker is None:
+            go = True
+        elif tSearcher.isAlive() is False and tChecker.isAlive() is False:
+            go = True
+        else:
+            go = False
+
+        if go is True:
+            print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] Start: uups something happened, we will just restart the threads, lol')
+            session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
+                                                         credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
+                                                         maxExpireTimeInMinutes, threadStatus, slack_client, botName)
+            threadStatus.setSearcherStatus(True)
+            threadStatus.setCheckerStatus(True)
+            tSearcher.start()
+            tChecker.start()
+
     else:
-        go = False
+        if tSearcher is None and tChecker is None and tSBCs is None and tPacks is None:
+            go = True
+        elif tSearcher.isAlive() is False and tChecker.isAlive() is False and tSBCs.is_alive() is False and tPacks.is_alive() is False:
+            go = True
+        else:
+            go = False
 
-    if go is True:
-        print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] Start: uups something happened, we will just restart the threads, lol')
-        session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
-                                                     credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
-                                                     maxExpireTimeInMinutes, threadStatus, slack_client, botName)
-        threadStatus.setSearcherStatus(True)
-        threadStatus.setCheckerStatus(True)
-        tSearcher.start()
-        tChecker.start()
+        if go is True:
+            print('[', datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
+                  '] Start: uups something happened, we will just restart the threads, lol')
+            session, tSearcher, tChecker = createThreads(credentials.ea['mail'], credentials.ea['pass'],
+                                                         credentials.ea['secr'], fut, assetIds, minExpireTimeInMinutes,
+                                                         maxExpireTimeInMinutes, threadStatus, slack_client, botName)
+            threadStatus.setSearcherStatus(True)
+            threadStatus.setCheckerStatus(True)
+            tSearcher.start()
+            tChecker.start()
 
-        if (tSlacker is None):
-            threadSlackLogger = ThreadSlackLogger(tChecker, tSearcher, slack_client, botName)
-            tSlacker = threading.Thread(name='slacker', target=threadSlackLogger.ckeckThreads)
-            tSlacker.start()
-        if (tPacks is None):
-            checkPacks = CheckPacks(session, db, isPackSearcher)
-            tPacks = threading.Thread(name='packer', target=checkPacks.packsInFUT())
+            checkSBC = CheckSBC(session, db, isPackSearcher, threadStatus)
+            tSBCs = threading.Thread(name='SBCs', target=checkSBC.sbcsInFut)
+            checkPacks = CheckPacks(session, db, isPackSearcher, threadStatus)
+            tPacks = threading.Thread(name='packer', target=checkPacks.packsInFUT)
+
             tPacks.start()
-        if (tSBCs is None):
-            checkSBC = CheckSBC(session, db, isPackSearcher)
-            tSBCs = threading.Thread(name='SBCs', target=checkSBC.sbcsInFut())
             tSBCs.start()
+
+
+
+
+
 
 # print(fut.watchlist())
 
