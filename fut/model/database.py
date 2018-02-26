@@ -6,14 +6,15 @@ import fut
 
 
 def executeSqlFromFile(connection, filename):
-    """    Oeffnet sql file, laedt enthaltene SQL-Skripte und fuehrt eines nach dem anderen aus.
-    Quelle: https://stackoverflow.com/questions/19472922/reading-external-sql-script-in-python
+    """
+    Opens sql file, loads SQL scripts and runs one after each other.
+    source: https://stackoverflow.com/questions/19472922/reading-external-sql-script-in-python
 
     :param connection
     :param filename
     :rtype: String
-    :return Erfolgsmessage
-    :raises ValueError: Wenn SQL-Befehl fehlschlaegt
+    :return message
+    :raises ValueError: If sql query produces errors
     """
     # Open and read the file as a single buffer
     fd = open(filename, 'r')
@@ -55,22 +56,14 @@ def readPlayers(connection, filename):
 
 
 def loadPlayerDatabase(coreobject, connection):
-    """    Lädt alle FUT-Spieler und schreibt sie in die Tabelle 'fut_players' in der Datenbank
+    """
+     loads all fut players and writes them in the table fut_players in the database
 
     :param coreobject: fut Core Object
     :param connection: db-connection
     :rtype: String
-    :return Erfolgsmessage
+    :return message
     """
-    # players = coreobject.players
-    # playerdump = json.dumps(players)
-    # for key, value in players.items():
-    # print(key)
-    # print(value)
-    #    for k, v in value.items():
-    #        print(k)
-    #        print(v)
-    # print(playerdump)
 
     players = coreobject.players
 
@@ -107,8 +100,9 @@ def loadPlayerDatabase(coreobject, connection):
     for item in x:
         connection.insert(sql, item)
 
-"""Speicherung der Watchlist in der Datenbank mit allen Attributen"""
+
 def succesTradesFromWatchlist(coreobject, connection):
+    """ saves trades from watchlist in database"""
     currentBidList = []
     assetIdList = []
     buyNowPriceList = []
@@ -317,7 +311,7 @@ def succesTradesFromWatchlist(coreobject, connection):
             print("Index Error in database.py: {}".format(e))
 
     if isDataOK:
-        # Erstellung einer Liste bestehend aus den Listen der Attribute
+        # Creates one list out of the lists of attributes, which it needs to save them
         x = list(zip(tradeIdList, buyNowPriceList, tradeStateList, bidStateList, startingBidList, idList, offersList, currentBidList, expiresList, sellerEstablishedList, sellerIdList, sellerNameList, watchedList, time_stampList,
         ratingList, assetIdList, resourceIdList, itemStateList, rareflagList, formationList, leagueIdList, injuryTypeList, injuryGamesList, lastSalePriceList, fitnessList, trainingList, suspensionList, contractList, pos_itionList, playStyleList, discardValueList, itemTypeList,
                       cardTypeList, cardsubtypeidList, ownersList, untradeableList, moraleList, statsList0List, statsList1List, statsList2List, statsList3List, statsList4List, lifetimeStats0List, lifetimeStats1List, lifetimeStats2List, lifetimeStats3List, lifetimeStats4List,

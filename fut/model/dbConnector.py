@@ -1,12 +1,17 @@
 import pymysql as MySQLdb
 
+
 class Database:
+    """
+    Creates a database object with the database connection.
+    """
 
     def __init__(self, host, user, password, db):
         self.connection = MySQLdb.connect(host, user, password, db, charset='utf8')
         self.cursor = self.connection.cursor()
 
     def insert(self, query, var=None):
+        """ inserts data in database"""
         cursor = self.connection.cursor(MySQLdb.cursors.DictCursor)
         try:
             if var != None:
@@ -21,6 +26,7 @@ class Database:
             self.connection.rollback()
 
     def query(self, query, var=None):
+        """ querys data from database """
         cursor = self.connection.cursor( MySQLdb.cursors.DictCursor )
         if var != None:
             cursor.execute(query, var)
