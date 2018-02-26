@@ -10,6 +10,10 @@ class Watchlist:
     items = []
 
     def __init__(self, fut_session, db, assetIds, minExpireTime, maxExpireTimeinMinutes, numberOfPlayers):
+        """
+        depricated: fut-anaylsis version 1
+        This version searches and saves trades in bulks, low return rate.
+        """
         self.assetId                    = 0
         self.assetIds                   = assetIds
         self.db                         = db
@@ -28,6 +32,7 @@ class Watchlist:
         self.isExpired                  = False
 
     def startBot(self):
+        """ depricated """
         print('### Bot started ###')
         while True:
             for assetId in self.assetIds:
