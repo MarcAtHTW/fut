@@ -4,6 +4,15 @@ import datetime
 
 class TradeChecker:
     def __init__(self, fut_session, semaphore, db, threadStatus, slack_client, botName):
+        """
+        Construktor of the tradesearcher.
+        :param fut_session: valid fut session
+        :param semaphore: semaphore to control if the watchlist is locked by the other thread
+        :param threadStatus: class to controll the threads
+        :param db: for saving trades
+        :param slack_client: for logging
+        :param botName: for logging
+        """
         self.session            = fut_session
         self.semaphore          = semaphore
         self.db                 = db
@@ -19,9 +28,13 @@ class TradeChecker:
 
 
 
-# watchliste abrufen und items nach abgelaufenen Objekten suchen. (expires ist dann auf -1)
-# wenn expired dann def SaveToDB
     def startTradeChecker(self):
+
+        """
+        This method looks for firt trade on the watchlist.
+        If the expiretime is -1 the trade will be handed over to def: saveToDB and the trade will be deleted on the watchlist.
+        If the expiretime is not -1 the bot will sleep as long as the expiretime is.        
+        """
 
         print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeChecker started ###')
         time.sleep(15)
@@ -35,7 +48,7 @@ class TradeChecker:
                 except Exception as error:
                     print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] {Debug} An error in the tradeChecker has occurred: session.watchlist() failed: ', error)
                     self.anErrorHasOccured = True
-                # Wie lange soll der Bot schlafen, wenn das Objekt null ist?
+
                 if lengthWatchlist == 0:
                     time.sleep(60)
                 else:
@@ -66,7 +79,6 @@ class TradeChecker:
         :param item: the least expired trade on the watchlist
         :return:
         """
-        # print(item)
 
         sqlItem = []
         y = item
@@ -151,7 +163,6 @@ class TradeChecker:
                   "attributeList0, attributeList1, attributeList2, attributeList3, attributeList4, attributeList5, teamid, assists, lifetimeAssists, loyaltyBonus, pile, nation, ye_ar, resourceGameYear) " \
                   "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-            # Einfügung der Liste x in die Datenbank
             self.db.insert(sql, sqlItem)
             print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] TradeChecker: Trade {} saved to db'.format(item["tradeId"]))
         elif not isDataOK:
