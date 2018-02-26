@@ -2,7 +2,9 @@ import time
 import datetime
 
 class ThreadStatus:
-
+    """
+    This class is used by the tradeSearcher and tradeChecker to controll weather the other thread is alive or to pass on it's own status
+    """
     def __init__(self):
         self.isSearcherAlive                   = True
         self.isCheckerAlive                    = True

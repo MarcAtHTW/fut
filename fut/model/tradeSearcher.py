@@ -5,6 +5,17 @@ from random import shuffle
 
 class TradeSearcher:
     def __init__(self, fut_session, semaphore, assetIds, minExpireTime, maxExpireTimeinMinutes, threadStatus, slack_client, botName):
+        """
+        Construktor of the tradesearcher.
+        :param fut_session: valid fut session
+        :param semaphore: semaphore to control if the watchlist is locked by the other thread
+        :param assetIds: a list of player ids
+        :param minExpireTime: in minutes
+        :param maxExpireTimeinMinutes: in minutes
+        :param threadStatus: class to controll the threads
+        :param slack_client: for logging
+        :param botName: for logging
+        """
         self.assetId = 0
         self.assetIds = assetIds
         self.minExpireTimeInMinutes = minExpireTime
@@ -25,6 +36,11 @@ class TradeSearcher:
         self.botName = botName
 
     def startTradeSearcher(self):
+        """
+        Starts the trade searcher, which begins to search for players until an error occurred during the searching or in the tradechecker.
+        If an error occurred the tradesearcher breaks out of the while loop in order to restart both threads, tradesearcher and tradechecker properly.
+        :return:
+        """
 
         print('[',datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),'] ### TradeSearcher started ###')
 
@@ -88,7 +104,7 @@ class TradeSearcher:
         """ Gets all ID's from Current q Resultset.
         :param page: Pages (Resultset) of transfermarketsearch.
         :type page: dict
-        :return:
+        :return: list with ids from the page
         """
         listIds = []
         for item in page:

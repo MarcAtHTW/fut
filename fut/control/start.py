@@ -16,7 +16,7 @@ from slackclient import SlackClient
 import time
 import datetime
 
-
+""" read in of the local credentials conf file."""
 credentials = Credentials()
 
 # Verbindung zur DB
@@ -42,6 +42,7 @@ pinAutomater = PinAutomater(
 #     debug=True
 # )
 
+""" initiation of the objects """
 slack_client = SlackClient(credentials.slack['slack_token'])
 botName = 'Bot_3(ZD-Auner): '
 #Wenn diese Variable auf True ist werden Packs und SBCs bei dem Bot geladen.
@@ -64,7 +65,7 @@ tSBCs = None
 # loadPlayerDatabase(fut, db)
 
 
-"""Objekterzeugung Watchlist"""
+"""read in the player ids from database"""
 # assetIds = [20801, 158023, 167495, 176580, 190871, 188545, 155862, 156353, 167664, 182521, 183277, 193080, 1179, 153079, 173731, 177003, 184941, 192119, 192985, 9014, 41236, 164240, 176635, 178603, 182493, 183907, 184344, 188567, 189509, 194765, 200389, 211110, 238431]
 assetIds = readPlayers(db, '../model/sqlqueries/read_playerstowatch.sql')
 shuffle(assetIds)
@@ -82,14 +83,14 @@ numberOfPlayers = 50            # Number of players to add to watchlist
 def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus, slack_client, nameBot):
     """
     Creates new fut session and two new threads for the tradeSearcher and tradeChecker
-    :param mail:
-    :param passw:
-    :param secr:
-    :param futCore:
-    :param assetIds:
-    :param minExpireTimeInMinutes:
-    :param maxExpireTimeInMinutes:
-    :param threadStatus:
+    :param mail: mail of ea acc
+    :param passw: pass of ea acc
+    :param secr: secret answer of ea acc
+    :param futCore: fut core object
+    :param assetIds: list of player ids to search for
+    :param minExpireTimeInMinutes: time minimum until the trades expire
+    :param maxExpireTimeInMinutes: time maximam until the trades expire
+    :param threadStatus: Object of threadStatus
     :return: session, tSearcher, tChecker
     """
     sess = futCore.Core(slack_client, nameBot, mail, passw, secr, debug=True)
@@ -106,12 +107,8 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
 
     return sess, tSearch, tCheck
 
-""" Thread Erzeugung """
-# tSearcher = threading.Thread(name='searcher', target=tradeSearcher.startTradeSearcher)
-# tChecker = threading.Thread(name='checker', target=tradeChecker.startTradeChecker)
 
-
-""" Start der Threads """
+""" Start of the threads and loop for a possible infinite run"""
 while True:
     if isPackSearcher is False:
         if tSearcher is None and tChecker is None:
@@ -159,18 +156,6 @@ while True:
             tSBCs.start()
 
 
-
-
-
-
-# print(fut.watchlist())
-
-# print(threading.activeCount())
-# print(tSearcher.isAlive())
-# print(tChecker.isAlive())
-
-# tradeSearcher.startTradeSearcher()
-# tradeChecker.startTradeChecker()
 
 print('start.py Done')
 
