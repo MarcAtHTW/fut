@@ -19,7 +19,7 @@ import datetime
 """ read in of the local credentials conf file."""
 credentials = Credentials()
 
-# Verbindung zur DB
+# Connection to DB
 db = DB.Database(
     credentials.db['host'],
     credentials.db['user'],
@@ -33,7 +33,7 @@ pinAutomater = PinAutomater(
     credentials.mail['port'],
 )
 
-# Verbindung zu EA
+# Connection to EA
 # fut = fut.Core(
 #     credentials.ea['mail'],
 #     credentials.ea['pass'],
@@ -45,7 +45,7 @@ pinAutomater = PinAutomater(
 """ initiation of the objects """
 slack_client = SlackClient(credentials.slack['slack_token'])
 botName = 'Bot_3(ZD-Auner): '
-#Wenn diese Variable auf True ist werden Packs und SBCs bei dem Bot geladen.
+#If this Vaiable is True -> search for Pack's and SBC's (Attention, one Bot is enogh)
 isPackSearcher = False
 
 threadStatus = ThreadStatus()
@@ -75,10 +75,6 @@ minExpireTimeInMinutes   = 2             # Min expiretime in minutes
 maxExpireTimeInMinutes   = 5            # Max expiretime in Minutes
 numberOfPlayers = 50            # Number of players to add to watchlist
 
-# watchlist = Watchlist(fut, db, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, numberOfPlayers)
-# watchlist.startBot()
-# watchlist.loadTradeIdsFromLiveWatchlist()
-
 
 def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes, threadStatus, slack_client, nameBot):
     """
@@ -96,7 +92,7 @@ def createThreads(mail, passw, secr, futCore, assetIds, minExpireTimeInMinutes, 
     sess = futCore.Core(slack_client, nameBot, mail, passw, secr, debug=True)
 
     semaphore = Semaphor(sess, slack_client, nameBot)
-    """ Objekterzeugung tradeSearcher und tradeChecker """
+    """ Create objects tradeSearcher and tradeChecker """
     tradeSearcher = TradeSearcher(sess, semaphore, assetIds, minExpireTimeInMinutes, maxExpireTimeInMinutes,
                                   threadStatus, slack_client, nameBot)
     tradeChecker = TradeChecker(sess, semaphore, db, threadStatus, slack_client, nameBot)
@@ -158,5 +154,8 @@ while True:
 
 
 print('start.py Done')
+self.slack_client.api_call("chat.postMessage", channel='C8FQ2E0F8',
+                                           text=self.botName + '<!channel|> IMPORTANT: all Bots DOWN, please check it!!!.',
+                                           username='pythonbot')
 
 
